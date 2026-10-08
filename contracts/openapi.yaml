@@ -176,6 +176,36 @@ components:
         flags: { type: array, items: { $ref: '#/components/schemas/Flag' } }
         questions: { type: array, items: { $ref: '#/components/schemas/Question' } }
         needs_you: { type: integer, minimum: 0 }
+      examples:
+        - summary: Priya's draft trip claim
+          value:
+            id: "3a1d70b2-6e3f-4a1c-9d2e-8f9a0b1c2d3e"
+            title: "Pune client visit"
+            status: "needs_info"
+            total_paise: 2212400
+            erp_ref: null
+            lines:
+              - id: "line-1"
+                category: "hotel"
+                expense_date: "2026-10-12"
+                vendor: "Taj Hotel"
+                amount_paise: 980000
+                claimable_paise: 900000
+                state: "partly_covered"
+                flag_ids: ["flag-1"]
+            flags:
+              - id: "flag-1"
+                type: "policy"
+                severity: "amber"
+                rule_id: "P-HTL-1"
+                message: "Hotel expenses exceed policy limit of 9000 INR per night"
+                evidence: {"limit_paise": 900000, "actual_paise": 980000}
+            questions:
+              - id: "question-1"
+                field: "purpose"
+                prompt: "What is the purpose of this trip?"
+                options: ["Client visit", "Training"]
+            needs_you: 2
     ClaimList: { type: object, required: [claims], properties: { claims: { type: array, items: { $ref: '#/components/schemas/ClaimView' } } } }
     ValidateResult: { type: object, required: [flags, ready], properties: { flags: { type: array, items: { $ref: '#/components/schemas/Flag' } }, ready: { type: boolean } } }
     SubmitResult: { type: object, required: [status, erp_ref], properties: { status: { const: submitted }, erp_ref: { type: string } } }
@@ -199,5 +229,23 @@ components:
         reserved_paise: { type: integer }
         available_paise: { type: integer }
         period_end: { type: string, format: date }
-    Entitlements: { type: object, required: [as_of, items], properties: { as_of: { type: string, format: date-time }, items: { type: array, items: { $ref: '#/components/schemas/EntitlementItem' } } } }
+    Entitlements:
+      type: object
+      required: [as_of, items]
+      properties:
+        as_of: { type: string, format: date-time }
+        items: { type: array, items: { $ref: '#/components/schemas/EntitlementItem' } }
+      examples:
+        - summary: Arjun's exhausted broadband entitlement
+          value:
+            as_of: "2026-10-08T10:00:00Z"
+            items:
+              - category: "broadband"
+                period: "fin_year"
+                limit_paise: 1500000
+                paid_paise: 1300000
+                pending_paise: 0
+                reserved_paise: 99900
+                available_paise: 100100
+                period_end: "2027-03-31"
     ApprovalAction: { type: object, required: [action], properties: { action: { enum: [approve, return, reject] }, comment: { type: [string, 'null'] } } }
