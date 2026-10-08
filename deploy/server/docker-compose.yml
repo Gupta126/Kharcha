@@ -1,25 +1,15 @@
 # Kharcha hosted stack on the single Oracle VM (kh-core, arm64).
 # Run from the RELEASE checkout /opt/kharcha via deploy/scripts/deploy.sh (project name: kharcha).
-# Only Caddy is public (80/443). Everything else binds to 127.0.0.1 so the dev runner and
-# the SSH tunnel can reach it, but the internet cannot.
+# The VM's existing host nginx (which also fronts Apache Guacamole) is the only public entry (80/443);
+# it proxies the Kharcha subdomain to api on 127.0.0.1:8000 (deploy/server/nginx/kharcha.conf).
+# Every port here binds to 127.0.0.1. Memory caps are sized to leave room for Guacamole.
 name: kharcha
 services:
-  caddy:
-    image: caddy:2
-    ports: [ "80:80", "443:443" ]
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ../../console/dist:/srv/console:ro
-      - caddy:/data
-    environment:
-      DOMAIN: ${DOMAIN}
-    depends_on: [ api ]
-    mem_limit: 64m
-    restart: unless-stopped
   api:
     build: ../../backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers", "--forwarded-allow-ips", "*"]
     env_file: ../../.env
+    ports: [ "127.0.0.1:8000:8000" ]
     volumes: [ "../../data/seed:/data/seed:ro" ]
     depends_on:
       postgres: { condition: service_healthy }
@@ -31,18 +21,18 @@ services:
     command: rq worker --url redis://redis:6379/0 extract forensics agent erp
     env_file: ../../.env
     depends_on: [ postgres, redis ]
-    mem_limit: 768m
+    mem_limit: 640m
     restart: unless-stopped
   forensics:
     build: ../../forensics
     ports: [ "127.0.0.1:8085:8085" ]
-    mem_limit: 768m
+    mem_limit: 512m
     restart: unless-stopped
   mock-erp:
     build: ../../mock-erp
     ports: [ "127.0.0.1:8090:8090" ]
     volumes: [ "../../data/seed:/data/seed:ro" ]
-    mem_limit: 256m
+    mem_limit: 192m
     restart: unless-stopped
   litellm:
     build: ../../gateway
@@ -56,18 +46,18 @@ services:
       POSTGRES_DB: kharcha
       POSTGRES_USER: kharcha
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    command: postgres -c shared_buffers=256MB -c work_mem=4MB -c max_connections=60
+    command: postgres -c shared_buffers=192MB -c work_mem=4MB -c max_connections=50
     volumes: [ "pg:/var/lib/postgresql/data", "./initdb:/docker-entrypoint-initdb.d:ro" ]
     ports: [ "127.0.0.1:5432:5432" ]
     healthcheck: { test: ["CMD", "pg_isready", "-U", "kharcha"], interval: 10s }
-    mem_limit: 1536m
+    mem_limit: 1024m
     restart: unless-stopped
   redis:
     image: redis:7-alpine
-    command: redis-server --appendonly yes --maxmemory 200mb --maxmemory-policy noeviction
+    command: redis-server --appendonly yes --maxmemory 128mb --maxmemory-policy noeviction
     volumes: [ "redis:/data" ]
     ports: [ "127.0.0.1:6379:6379" ]
-    mem_limit: 256m
+    mem_limit: 192m
     restart: unless-stopped
   minio:
     image: minio/minio
@@ -77,6 +67,6 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes: [ "minio:/data" ]
     ports: [ "127.0.0.1:9000:9000", "127.0.0.1:9001:9001" ]
-    mem_limit: 512m
+    mem_limit: 384m
     restart: unless-stopped
-volumes: { pg: {}, redis: {}, minio: {}, caddy: {} }
+volumes: { pg: {}, redis: {}, minio: {} }

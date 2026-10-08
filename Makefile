@@ -11,8 +11,8 @@ help:            ## list commands
 infra-up:        ## BACKEND: start shared services from the release checkout, e.g. make infra-up SVC="postgres redis minio mock-erp"
 	cd $(REL) && git pull --ff-only
 	$(HOSTED) up -d --build $(SVC)
-status:          ## BACKEND: containers + memory
-	docker compose -p kharcha ps; free -h
+status:          ## BACKEND: Kharcha containers, all container memory (incl. Guacamole), free RAM
+	docker compose -p kharcha ps; docker stats --no-stream --format 'table {{.Name}}\t{{.MemUsage}}'; free -h
 dev-api:         ## BACKEND: dev API on 127.0.0.1:8001 (kharcha_dev DB, LLM_MODE from .env.dev)
 	$(UVB) uvicorn app.main:app --host 127.0.0.1 --port 8001 --reload
 dev-worker:      ## BACKEND: dev worker on Redis DB 1, queues prefixed dev-

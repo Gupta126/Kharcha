@@ -50,6 +50,9 @@ Each task in docs/TASKS.md lists its own verify commands. A task is done only wh
 - Validation logic must pass contracts/test-vectors in both languages.
 - Keep changes scoped to the current task. If the spec is ambiguous, stop and ask; do not invent requirements.
 - Write tests with the code. Run the task's verify commands before saying a task is done.
+- This VM also runs **Apache Guacamole** (Docker) and **host nginx** (80/443) that are not part of Kharcha. Never stop, restart,
+  reconfigure or remove them, their containers, volumes or networks, never edit /etc/nginx, and never run
+  `docker system prune`, `docker compose down` without `-p kharcha`, or `systemctl restart docker`.
 - The hosted stack in /opt/kharcha is the live demo on this same VM. Never edit /opt/kharcha, never run `make deploy`,
   and never stop/restart/down the `kharcha` compose project unless explicitly asked. `make infra-up` is allowed.
 - Development uses the dev checkout ~/kharcha, `.env.dev`, `kharcha_dev`/`kharcha_test` databases and port 8001 only.

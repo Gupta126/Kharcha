@@ -224,8 +224,8 @@ Verify: `cd console && npm ci && npm run build && npm test`
 
 ### [ ] T-29 Deployment files — CLAUDE
 Workspace: BACKEND | Depends: T-06 | Refs: PRD §24–26, deploy/, gateway/
-Deliver: finalise deploy/server/{docker-compose.yml,Caddyfile,initdb/}, `deploy/scripts/{bootstrap_server.sh,deploy.sh,backup.sh,llm_smoke.sh}`,
-`gateway/litellm.test.yaml` (stub). Do NOT run deploy.sh or touch /opt/kharcha.
+Deliver: finalise deploy/server/{docker-compose.yml,nginx/kharcha.conf,initdb/} (host nginx, no Caddy), `deploy/scripts/{bootstrap_server.sh,deploy.sh,backup.sh,llm_smoke.sh}`,
+`gateway/litellm.test.yaml` (stub). Do NOT run deploy.sh, touch /opt/kharcha, /etc/nginx or Guacamole.
 Verify: `docker compose --env-file .env.example -f deploy/server/docker-compose.yml config -q && shellcheck deploy/scripts/*.sh scripts/*.sh`
 
 ### [ ] T-30 CI/CD workflows — CLAUDE
@@ -248,7 +248,7 @@ Verify: a fresh clone following docs/workspaces/SETUP.md reaches a green `127.0.
 ## HUMAN tasks (Claude Code prepares, you execute)
 - [ ] H-01 Oracle Cloud: VCN, security rules (22 from your IP, 80/443 public), one VM kh-core (A1.Flex 2 OCPU / 12 GB), run `deploy/scripts/bootstrap_server.sh` (PRD §24). Before T-00.
 - [ ] H-02 NVIDIA key: join the NVIDIA Developer Program, create an `nvapi-` key on build.nvidia.com → `/opt/kharcha/.env` (PRD §26). No other provider.
-- [ ] H-03 DNS: DuckDNS (or similar) subdomain → kh-core public IP; set DOMAIN in `/opt/kharcha/.env`.
+- [ ] H-03 DNS + nginx: DuckDNS (or similar) subdomain → kh-core public IP; set DOMAIN in `/opt/kharcha/.env`; install deploy/server/nginx/kharcha.conf and run `sudo certbot --nginx -d <subdomain>` (steps in the file header).
 - [ ] H-04 GitHub: private repo, branch protection on main, kh-core SSH key added for clone/push.
 - [ ] H-05 NVIDIA model check: open each model page in gateway/litellm.config.yaml, confirm the id and free endpoint, then `make llm-smoke` (after T-06).
 - [ ] H-06 Test phone(s): enable developer mode; check GenAI feature availability; run benchmark (T-23).
