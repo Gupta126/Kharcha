@@ -1,80 +1,23 @@
-# Kharcha — AI expense & reimbursement agent
+# Kharcha — AI expense & reimbursement agent (starter kit)
 
-Monorepo for a hackathon prototype: Android app + Python backend + mock finance (ERP).
-Turns a pile of receipts into a verified, policy-checked, submit-ready claim.
-All data is synthetic. The finance system is mocked. Never use real receipts or real company data.
+Spec kit designed for Claude Code, split across two machines that share this repo through GitHub:
 
-## Quick Start
+| Workspace | Machine | Owns |
+|---|---|---|
+| APP | your laptop (Android Studio) | android/, console/ |
+| BACKEND | Oracle kh-core VM (arm64, 12 GB) — also hosts the backend | backend/, forensics/, mock-erp/, gateway/, eval/, data/, deploy/, contracts/ |
 
-### Prerequisites
-- [uv](https://docs.astral.sh/uv/) (Python package installer)
-- [Node.js](https://nodejs.org/) (for console)
-- [Android Studio](https://developer.android.com/studio) (for Android app)
-- [Claude Code](https://claude.ai/code) (recommended development tool)
+`contracts/` (OpenAPI, receipt schema, test vectors, shared prompt) is the only shared surface.
+The app develops against a Prism mock of the contract until the backend is ready, then switches to the
+real dev backend through an SSH tunnel. LLMs are NVIDIA hosted models only (build.nvidia.com); no model runs on the VM.
+Claude Code is used as the terminal CLI on both machines.
 
-### Backend Development
-```bash
-# Switch to backend directory
-cd backend
+## Start
+1. Push this kit to a new private GitHub repo.
+2. Follow docs/workspaces/SETUP.md for kh-core (§2) and the laptop (§3–4).
+3. On each machine, open Claude Code in the repo root and say:
+   "Read CLAUDE.md. Implement task T-xx from docs/TASKS.md only. Plan first, then build, then run its Verify commands and report."
+   Order: docs/TASKS.md "Start here".
 
-# Synchronize dependencies
-uv sync
-
-# Run tests
-uv run pytest -q
-
-# Start development API
-make dev-api
-
-# Start development worker
-make dev-worker
-```
-
-### Android App Development
-```bash
-# Switch to android directory
-cd android
-
-# Build the app
-./gradlew :app:assembleMockDebug
-
-# Run unit tests
-./gradlew :app:testMockDebugUnitTest
-```
-
-### Console Development
-```bash
-# Switch to console directory
-cd console
-
-# Install dependencies
-npm ci
-
-# Run build
-npm run build
-
-# Run tests
-npm test
-```
-
-### Available Commands
-See the Makefile for all available commands:
-- `make help` - List all commands
-- `make contract-check` - Validate API contracts
-- `make backend-test` - Run backend tests
-- `make android-test` - Run Android tests
-- `make eval` - Run evaluation harness
-
-## Workspaces
-
-This repository uses a two-workspace model:
-- **APP Workspace**: Android app and console (laptop development)
-- **BACKEND Workspace**: Python backend services (VM development)
-
-See `docs/workspaces/` for detailed setup guides.
-
-## Documentation
-- Product requirements: `docs/PRD.md`
-- Specifications: `docs/SPEC.md`
-- Task breakdown: `docs/TASKS.md`
-- API contracts: `contracts/openapi.yaml`
+Specs: docs/PRD.pdf (PRD + development guide), docs/SPEC.md (locked rules), docs/TASKS.md (task board),
+docs/schema.sql, contracts/. All data is synthetic. The finance system is mocked.
