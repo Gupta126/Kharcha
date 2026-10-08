@@ -14,7 +14,7 @@ How to use: start a fresh Claude Code session in the repo root for each task and
 Work in ID order unless "Depends" says otherwise. Mark `[x]` only after every Verify command passes.
 Owner: **CLAUDE** = Claude Code does it end to end; **HUMAN** = you do it (console, keys, DNS, devices);
 **HUMAN-VERIFY** = Claude Code builds it with fakes/tests, you confirm on a real phone or VM.
-Refs: PRD §n = docs/PRD.pdf section; SPEC §n = docs/SPEC.md section.
+Refs: PRD §n = section "## PRD §n" in docs/PRD.md (never the PDF); SPEC §n = docs/SPEC.md section.
 
 ---
 ## Phase 0 — Foundations
@@ -26,7 +26,7 @@ Deliver: review contracts/openapi.yaml against SPEC §3 and fix gaps; add realis
 Done when: `make contract-check` passes; Prism serves every path with examples.
 Verify: `make contract-check && npx -y @stoplight/prism-cli@5 mock contracts/openapi.yaml -p 4010 & sleep 15 && curl -sf localhost:4010/v1/entitlements -H 'Authorization: Bearer x'`
 
-### [ ] T-01 Repo scaffold and tooling — CLAUDE
+### [x] T-01 Repo scaffold and tooling — CLAUDE
 Workspace: BACKEND | Depends: — | Refs: PRD §20, CLAUDE.md
 Deliver: directory tree from PRD §20 (android/ and console/ only as empty placeholders with a README); `.gitignore` (Python, Android, Node, .env); `backend/pyproject.toml`,
 `forensics/pyproject.toml`, `mock-erp/pyproject.toml`, `eval/pyproject.toml` (uv, ruff, mypy, pytest);
