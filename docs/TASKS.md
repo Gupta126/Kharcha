@@ -19,7 +19,7 @@ Refs: PRD §n = docs/PRD.pdf section; SPEC §n = docs/SPEC.md section.
 ---
 ## Phase 0 — Foundations
 
-### [ ] T-00 Contract v1 freeze — CLAUDE
+### [x] T-00 Contract v1 freeze — CLAUDE
 Workspace: BACKEND | Depends: — | Refs: contracts/README.md, SPEC §1b, §3
 Deliver: review contracts/openapi.yaml against SPEC §3 and fix gaps; add realistic `examples` for ClaimView, Entitlements
 (Priya's draft trip, Arjun's exhausted broadband) so the Prism mock is useful to the app; tag `contract-v1.0.0`.
