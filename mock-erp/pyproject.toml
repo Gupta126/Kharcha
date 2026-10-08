@@ -1,0 +1,39 @@
+[project]
+name = "kharcha-mock-erp"
+version = "0.1.0"
+description = "Kharcha mock ERP service"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Kharcha Team"}
+]
+keywords = ["expense", "reimbursement", "mock-erp", "finance"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "uv",
+    "ruff",
+    "mypy",
+    "pytest",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+select = ["E", "F", "W", "C90"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
