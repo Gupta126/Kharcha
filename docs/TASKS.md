@@ -26,7 +26,7 @@ Deliver: review contracts/openapi.yaml against SPEC §3 and fix gaps; add realis
 Done when: `make contract-check` passes; Prism serves every path with examples.
 Verify: `make contract-check && npx -y @stoplight/prism-cli@5 mock contracts/openapi.yaml -p 4010 & sleep 15 && curl -sf localhost:4010/v1/entitlements -H 'Authorization: Bearer x'`
 
-### [ ] T-01 Repo scaffold and tooling — CLAUDE
+### [x] T-01 Repo scaffold and tooling — CLAUDE
 Workspace: BACKEND | Depends: — | Refs: PRD §20, CLAUDE.md
 Deliver: directory tree from PRD §20 (android/ and console/ only as empty placeholders with a README); `.gitignore` (Python, Android, Node, .env); `backend/pyproject.toml`,
 `forensics/pyproject.toml`, `mock-erp/pyproject.toml`, `eval/pyproject.toml` (uv, ruff, mypy, pytest);
