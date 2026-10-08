@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kharcha.test/receipt.schema.json",
+  "title": "Kharcha extracted receipt (PRD §10, SPEC §3)",
+  "type": "object",
+  "required": [
+    "doc_id",
+    "doc_type",
+    "vendor",
+    "date",
+    "total"
+  ],
+  "properties": {
+    "doc_id": {
+      "type": "string"
+    },
+    "doc_type": {
+      "enum": [
+        "flight",
+        "rail",
+        "cab",
+        "hotel",
+        "meal",
+        "fuel",
+        "toll",
+        "telecom",
+        "broadband",
+        "other"
+      ]
+    },
+    "lang": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "en",
+          "hi"
+        ]
+      }
+    },
+    "vendor": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "date": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "format": "date"
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "time": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "type": "string",
+          "pattern": "^[0-2][0-9]:[0-5][0-9]$"
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "city": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "total": {
+      "type": "object",
+      "required": [
+        "value_paise",
+        "currency",
+        "conf"
+      ],
+      "properties": {
+        "value_paise": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "const": "INR"
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "tax": {
+      "type": "object",
+      "properties": {
+        "taxable_paise": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cgst_paise": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sgst_paise": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "igst_paise": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "rate": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "gstin": {
+      "type": "object",
+      "required": [
+        "value"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "checksum_ok": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "invoice_no": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "type": "string"
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "payment_mode": {
+      "type": "object",
+      "required": [
+        "value",
+        "conf"
+      ],
+      "properties": {
+        "value": {
+          "enum": [
+            "UPI",
+            "card",
+            "cash",
+            "wallet",
+            "bank_transfer",
+            "unknown"
+          ]
+        },
+        "conf": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "nights": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "line_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "desc",
+          "amount_paise"
+        ],
+        "properties": {
+          "desc": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number"
+          },
+          "amount_paise": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "trust": {
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "prompt_version": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

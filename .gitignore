@@ -1,0 +1,15 @@
+.env
+CLAUDE.local.md
+.claude/settings.local.json
+__pycache__/
+.venv/
+*.pyc
+node_modules/
+console/dist/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.keystore
+eval/results/*.tmp
+data/generated/

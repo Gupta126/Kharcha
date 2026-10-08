@@ -1,0 +1,82 @@
+# Kharcha hosted stack on the single Oracle VM (kh-core, arm64).
+# Run from the RELEASE checkout /opt/kharcha via deploy/scripts/deploy.sh (project name: kharcha).
+# Only Caddy is public (80/443). Everything else binds to 127.0.0.1 so the dev runner and
+# the SSH tunnel can reach it, but the internet cannot.
+name: kharcha
+services:
+  caddy:
+    image: caddy:2
+    ports: [ "80:80", "443:443" ]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ../../console/dist:/srv/console:ro
+      - caddy:/data
+    environment:
+      DOMAIN: ${DOMAIN}
+    depends_on: [ api ]
+    mem_limit: 64m
+    restart: unless-stopped
+  api:
+    build: ../../backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+    env_file: ../../.env
+    volumes: [ "../../data/seed:/data/seed:ro" ]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    mem_limit: 384m
+    restart: unless-stopped
+  worker:
+    build: ../../backend
+    command: rq worker --url redis://redis:6379/0 extract forensics agent erp
+    env_file: ../../.env
+    depends_on: [ postgres, redis ]
+    mem_limit: 768m
+    restart: unless-stopped
+  forensics:
+    build: ../../forensics
+    ports: [ "127.0.0.1:8085:8085" ]
+    mem_limit: 768m
+    restart: unless-stopped
+  mock-erp:
+    build: ../../mock-erp
+    ports: [ "127.0.0.1:8090:8090" ]
+    volumes: [ "../../data/seed:/data/seed:ro" ]
+    mem_limit: 256m
+    restart: unless-stopped
+  litellm:
+    build: ../../gateway
+    env_file: ../../.env
+    ports: [ "127.0.0.1:4000:4000" ]
+    mem_limit: 512m
+    restart: unless-stopped
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kharcha
+      POSTGRES_USER: kharcha
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    command: postgres -c shared_buffers=256MB -c work_mem=4MB -c max_connections=60
+    volumes: [ "pg:/var/lib/postgresql/data", "./initdb:/docker-entrypoint-initdb.d:ro" ]
+    ports: [ "127.0.0.1:5432:5432" ]
+    healthcheck: { test: ["CMD", "pg_isready", "-U", "kharcha"], interval: 10s }
+    mem_limit: 1536m
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 200mb --maxmemory-policy noeviction
+    volumes: [ "redis:/data" ]
+    ports: [ "127.0.0.1:6379:6379" ]
+    mem_limit: 256m
+    restart: unless-stopped
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes: [ "minio:/data" ]
+    ports: [ "127.0.0.1:9000:9000", "127.0.0.1:9001:9001" ]
+    mem_limit: 512m
+    restart: unless-stopped
+volumes: { pg: {}, redis: {}, minio: {}, caddy: {} }

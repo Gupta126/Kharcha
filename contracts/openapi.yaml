@@ -1,0 +1,203 @@
+openapi: 3.1.0
+info:
+  title: Kharcha API
+  version: 1.0.0
+  description: |
+    Contract between the Android app (APP workspace) and the backend (BACKEND workspace).
+    Source of truth for request/response shapes. Behaviour rules live in docs/SPEC.md.
+    Changes: BACKEND workspace only, via a `contract/` branch; bump info.version and contracts/CHANGELOG.md.
+servers:
+  - url: http://localhost:4010
+    description: local mock (Prism) on the laptop
+  - url: http://localhost:8001
+    description: dev runner on kh-core through the SSH tunnel
+  - url: https://{domain}
+    description: demo deployment
+    variables: { domain: { default: kharcha.example.duckdns.org } }
+security: [ { bearer: [] } ]
+paths:
+  /v1/auth/login:
+    post:
+      security: []
+      operationId: login
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/LoginRequest' } } } }
+      responses:
+        '200': { description: token, content: { application/json: { schema: { $ref: '#/components/schemas/LoginResponse' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+  /v1/healthz:
+    get:
+      security: []
+      operationId: healthz
+      responses:
+        '200': { description: health, content: { application/json: { schema: { $ref: '#/components/schemas/Health' } } } }
+  /v1/documents:
+    post:
+      operationId: createDocument
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/DocumentCreate' } } } }
+      responses:
+        '201': { description: created, content: { application/json: { schema: { $ref: '#/components/schemas/DocumentCreated' } } } }
+        '200': { description: already exists (same sha256), content: { application/json: { schema: { $ref: '#/components/schemas/DocumentCreated' } } } }
+        '422': { $ref: '#/components/responses/Error' }
+  /v1/claims/draft:
+    get:
+      operationId: listDraftClaims
+      responses:
+        '200': { description: drafts, content: { application/json: { schema: { $ref: '#/components/schemas/ClaimList' } } } }
+  /v1/claims/{id}:
+    get:
+      operationId: getClaim
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: claim, content: { application/json: { schema: { $ref: '#/components/schemas/ClaimView' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+  /v1/claims/{id}/validate:
+    post:
+      operationId: validateClaim
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: result, content: { application/json: { schema: { $ref: '#/components/schemas/ValidateResult' } } } }
+  /v1/claims/{id}/submit:
+    post:
+      operationId: submitClaim
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '202': { description: submitted, content: { application/json: { schema: { $ref: '#/components/schemas/SubmitResult' } } } }
+        '409': { $ref: '#/components/responses/Error' }
+  /v1/agent/messages:
+    post:
+      operationId: agentMessage
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/AgentMessage' } } } }
+      responses:
+        '200': { description: reply, content: { application/json: { schema: { $ref: '#/components/schemas/AgentReply' } } } }
+  /v1/entitlements:
+    get:
+      operationId: getEntitlements
+      responses:
+        '200': { description: balances, content: { application/json: { schema: { $ref: '#/components/schemas/Entitlements' } } } }
+  /v1/approvals/{id}:
+    post:
+      operationId: approvalAction
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ApprovalAction' } } } }
+      responses:
+        '200': { description: updated, content: { application/json: { schema: { $ref: '#/components/schemas/ClaimView' } } } }
+        '403': { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string } }
+  responses:
+    Error: { description: error, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { enum: [NOT_FOUND, VALIDATION_FAILED, ILLEGAL_TRANSITION, NOT_ENTITLED, DUPLICATE_DOCUMENT, LLM_UNAVAILABLE, ERP_UNAVAILABLE, UNAUTHORIZED, FORBIDDEN] }
+            message: { type: string }
+            details: { type: object }
+    LoginRequest: { type: object, required: [email], properties: { email: { type: string, format: email, examples: [priya@kharcha.test] } } }
+    LoginResponse:
+      type: object
+      required: [token, role, employee_id]
+      properties: { token: { type: string }, role: { enum: [employee, approver, finance] }, employee_id: { type: string } }
+    Health:
+      type: object
+      properties:
+        db: { enum: [ok, down] }
+        redis: { enum: [ok, down] }
+        llm: { enum: [ok, degraded, down] }
+        erp: { enum: [ok, down] }
+    Category: { enum: [flight, rail, cab, hotel, meal, fuel, toll, telecom, broadband, other] }
+    TrustSignal: { type: object, required: [name, failed], properties: { name: { type: string }, failed: { type: boolean } } }
+    DocumentCreate:
+      type: object
+      required: [sha256, mime, pages, capture_source, device_tier]
+      properties:
+        sha256: { type: string, pattern: '^[0-9a-f]{64}$' }
+        mime: { enum: [image/jpeg, image/png, image/webp, image/heic, application/pdf] }
+        pages: { type: integer, minimum: 1, maximum: 10 }
+        capture_source: { enum: [camera_scan, gallery, share, screenshot, pdf_download] }
+        device_tier: { enum: [A, B, C] }
+        extraction: { oneOf: [ { $ref: './receipt.schema.json' }, { type: 'null' } ] }
+        trust_signals: { type: array, items: { $ref: '#/components/schemas/TrustSignal' } }
+        ocr_text: { type: [string, 'null'], description: required when extraction is null }
+    DocumentCreated:
+      type: object
+      required: [document_id, status, claim_id]
+      properties:
+        document_id: { type: string }
+        status: { enum: [extracted, queued, needs_confirmation] }
+        claim_id: { type: string }
+        line_id: { type: [string, 'null'] }
+    LineState: { enum: [available, nearly_used, partly_covered, exhausted, not_entitled, unknown] }
+    Line:
+      type: object
+      required: [id, category, expense_date, amount_paise, claimable_paise, state]
+      properties:
+        id: { type: string }
+        category: { $ref: '#/components/schemas/Category' }
+        expense_date: { type: string, format: date }
+        vendor: { type: [string, 'null'] }
+        amount_paise: { type: integer }
+        claimable_paise: { type: integer }
+        state: { $ref: '#/components/schemas/LineState' }
+        flag_ids: { type: array, items: { type: string } }
+    Flag:
+      type: object
+      required: [id, type, severity, message]
+      properties:
+        id: { type: string }
+        type: { enum: [policy, entitlement, duplicate, authenticity, missing] }
+        severity: { enum: [green, amber, red] }
+        rule_id: { type: [string, 'null'] }
+        message: { type: string }
+        evidence: { type: object }
+    Question:
+      type: object
+      required: [id, field, prompt, options]
+      properties: { id: { type: string }, field: { type: string }, prompt: { type: string }, options: { type: array, items: { type: string } } }
+    ClaimStatus: { enum: [draft, needs_info, ready, submitted, in_review, approved, rejected, returned, paid] }
+    ClaimView:
+      type: object
+      required: [id, status, total_paise, lines, flags, questions, needs_you]
+      properties:
+        id: { type: string }
+        title: { type: [string, 'null'] }
+        status: { $ref: '#/components/schemas/ClaimStatus' }
+        total_paise: { type: integer }
+        erp_ref: { type: [string, 'null'] }
+        lines: { type: array, items: { $ref: '#/components/schemas/Line' } }
+        flags: { type: array, items: { $ref: '#/components/schemas/Flag' } }
+        questions: { type: array, items: { $ref: '#/components/schemas/Question' } }
+        needs_you: { type: integer, minimum: 0 }
+    ClaimList: { type: object, required: [claims], properties: { claims: { type: array, items: { $ref: '#/components/schemas/ClaimView' } } } }
+    ValidateResult: { type: object, required: [flags, ready], properties: { flags: { type: array, items: { $ref: '#/components/schemas/Flag' } }, ready: { type: boolean } } }
+    SubmitResult: { type: object, required: [status, erp_ref], properties: { status: { const: submitted }, erp_ref: { type: string } } }
+    AgentMessage:
+      type: object
+      required: [claim_id]
+      properties:
+        claim_id: { type: string }
+        text: { type: [string, 'null'] }
+        answer: { type: [object, 'null'], properties: { question_id: { type: string }, value: { type: string } } }
+    AgentReply: { type: object, required: [reply, claim], properties: { reply: { type: string }, claim: { $ref: '#/components/schemas/ClaimView' } } }
+    EntitlementItem:
+      type: object
+      required: [category, period, limit_paise, paid_paise, pending_paise, reserved_paise, available_paise, period_end]
+      properties:
+        category: { oneOf: [ { $ref: '#/components/schemas/Category' }, { const: overall } ] }
+        period: { enum: [month, quarter, fin_year, per_trip] }
+        limit_paise: { type: integer }
+        paid_paise: { type: integer }
+        pending_paise: { type: integer }
+        reserved_paise: { type: integer }
+        available_paise: { type: integer }
+        period_end: { type: string, format: date }
+    Entitlements: { type: object, required: [as_of, items], properties: { as_of: { type: string, format: date-time }, items: { type: array, items: { $ref: '#/components/schemas/EntitlementItem' } } } }
+    ApprovalAction: { type: object, required: [action], properties: { action: { enum: [approve, return, reject] }, comment: { type: [string, 'null'] } } }

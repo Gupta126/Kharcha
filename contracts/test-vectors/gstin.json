@@ -1,0 +1,60 @@
+{
+  "description": "GSTIN validation vectors (SPEC §5). Synthetic values only.",
+  "cases": [
+    {
+      "gstin": "27ABCDE1234F1Z0",
+      "valid": true,
+      "reason": "ok"
+    },
+    {
+      "gstin": "29KHRCH0001A1ZH",
+      "valid": true,
+      "reason": "ok"
+    },
+    {
+      "gstin": "33TESTP4321Q1Z5",
+      "valid": true,
+      "reason": "ok"
+    },
+    {
+      "gstin": "07SYNTH5678K1ZZ",
+      "valid": true,
+      "reason": "ok"
+    },
+    {
+      "gstin": "27DEMOV0042B2ZO",
+      "valid": true,
+      "reason": "ok"
+    },
+    {
+      "gstin": "27ABCDE1234F1Z1",
+      "valid": false,
+      "reason": "checksum"
+    },
+    {
+      "gstin": "27ABCDE1234F1Y2",
+      "valid": false,
+      "reason": "14th char must be Z"
+    },
+    {
+      "gstin": "99ABCDE1234F1ZP",
+      "valid": false,
+      "reason": "state code out of range"
+    },
+    {
+      "gstin": "27abcde1234f1z0",
+      "valid": false,
+      "reason": "lowercase not accepted (normalise before validating)"
+    },
+    {
+      "gstin": "27ABCDE1234F1Z",
+      "valid": false,
+      "reason": "length 14"
+    },
+    {
+      "gstin": "",
+      "valid": false,
+      "reason": "empty"
+    }
+  ]
+}

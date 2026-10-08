@@ -1,0 +1,164 @@
+{
+  "description": "Synthetic demo employees for the mock ERP and backend seed (SPEC §7).",
+  "employees": [
+    {
+      "id": "0192f000-0000-7000-8000-000000000001",
+      "email": "priya@kharcha.test",
+      "name": "Priya Sharma",
+      "grade": "E3",
+      "role": "employee",
+      "home_city": "Mumbai",
+      "manager_email": "meera@kharcha.test",
+      "cost_centre": "SALES-WEST",
+      "entitlements": [
+        {
+          "category": "broadband",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 1500000,
+          "paid_paise": 1200000
+        },
+        {
+          "category": "meal",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 400000,
+          "paid_paise": 160000
+        },
+        {
+          "category": "hotel",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 6000000,
+          "paid_paise": 1800000
+        },
+        {
+          "category": "flight",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 15000000,
+          "paid_paise": 4200000
+        },
+        {
+          "category": "cab",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 500000,
+          "paid_paise": 120000
+        },
+        {
+          "category": "fuel",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 300000,
+          "paid_paise": 0
+        },
+        {
+          "category": "toll",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 100000,
+          "paid_paise": 0
+        }
+      ]
+    },
+    {
+      "id": "0192f000-0000-7000-8000-000000000002",
+      "email": "arjun@kharcha.test",
+      "name": "Arjun Rao",
+      "grade": "E2",
+      "role": "employee",
+      "home_city": "Bengaluru",
+      "manager_email": "meera@kharcha.test",
+      "cost_centre": "ENG-PLATFORM",
+      "entitlements": [
+        {
+          "category": "broadband",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 1500000,
+          "paid_paise": 1500000
+        },
+        {
+          "category": "hotel",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 3000000,
+          "paid_paise": 0
+        },
+        {
+          "category": "meal",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 250000,
+          "paid_paise": 0
+        },
+        {
+          "category": "cab",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 200000,
+          "paid_paise": 0
+        }
+      ]
+    },
+    {
+      "id": "0192f000-0000-7000-8000-000000000003",
+      "email": "meera@kharcha.test",
+      "name": "Meera Sen",
+      "grade": "M1",
+      "role": "approver",
+      "home_city": "Mumbai",
+      "manager_email": null,
+      "cost_centre": "SALES-WEST",
+      "entitlements": [
+        {
+          "category": "broadband",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 2400000,
+          "paid_paise": 0
+        },
+        {
+          "category": "hotel",
+          "period": "fin_year",
+          "period_start": "2026-04-01",
+          "period_end": "2027-03-31",
+          "limit_paise": 9000000,
+          "paid_paise": 0
+        },
+        {
+          "category": "meal",
+          "period": "month",
+          "period_start": "2026-10-01",
+          "period_end": "2026-10-31",
+          "limit_paise": 600000,
+          "paid_paise": 0
+        }
+      ]
+    },
+    {
+      "id": "0192f000-0000-7000-8000-000000000004",
+      "email": "vikram@kharcha.test",
+      "name": "Vikram Iyer",
+      "grade": "M1",
+      "role": "finance",
+      "home_city": "Mumbai",
+      "manager_email": null,
+      "cost_centre": "FIN-OPS",
+      "entitlements": []
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "description": "Tax math vectors (SPEC §5). All amounts in paise.",
+  "cases": [
+    {
+      "name": "meal 5% intra-state ok",
+      "taxable": 156190,
+      "cgst": 3905,
+      "sgst": 3905,
+      "igst": null,
+      "total": 164000,
+      "expect": "ok"
+    },
+    {
+      "name": "hotel 12% intra-state ok",
+      "taxable": 437500,
+      "cgst": 26250,
+      "sgst": 26250,
+      "igst": null,
+      "total": 490000,
+      "expect": "ok"
+    },
+    {
+      "name": "flight 5% IGST ok",
+      "taxable": 801900,
+      "cgst": null,
+      "sgst": null,
+      "igst": 40095,
+      "total": 841995,
+      "expect": "ok"
+    },
+    {
+      "name": "cgst != sgst",
+      "taxable": 100000,
+      "cgst": 9000,
+      "sgst": 8000,
+      "igst": null,
+      "total": 117000,
+      "expect": "cgst_sgst_mismatch"
+    },
+    {
+      "name": "both igst and cgst",
+      "taxable": 100000,
+      "cgst": 9000,
+      "sgst": 9000,
+      "igst": 18000,
+      "total": 136000,
+      "expect": "mixed_igst_cgst"
+    },
+    {
+      "name": "total does not add up",
+      "taxable": 100000,
+      "cgst": 9000,
+      "sgst": 9000,
+      "igst": null,
+      "total": 128000,
+      "expect": "total_mismatch"
+    },
+    {
+      "name": "rate not a GST slab (10%)",
+      "taxable": 100000,
+      "cgst": 5000,
+      "sgst": 5000,
+      "igst": null,
+      "total": 110000,
+      "expect": "rate_not_slab"
+    },
+    {
+      "name": "rounding within tolerance",
+      "taxable": 100000,
+      "cgst": 9000,
+      "sgst": 9000,
+      "igst": null,
+      "total": 118050,
+      "expect": "ok"
+    },
+    {
+      "name": "no tax lines",
+      "taxable": 99900,
+      "cgst": null,
+      "sgst": null,
+      "igst": null,
+      "total": 99900,
+      "expect": "ok"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+# Kharcha LLM gateway: NVIDIA hosted models only (build.nvidia.com, OpenAI-compatible).
+# Confirm each model id on its build.nvidia.com page before use (H-05). No local model.
+# Fallback = a second NVIDIA model.
+# If both fail, the backend switches to no-LLM degraded mode (SPEC §6).
+model_list:
+  - model_name: kh-extract-image
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-nano-12b-v2-vl
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-extract-image-fb
+    litellm_params:
+      model: nvidia_nim/nvidia/llama-3.1-nemotron-nano-vl-8b-v1
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-extract-text
+    litellm_params:
+      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-extract-text-fb
+    litellm_params:
+      model: nvidia_nim/mistralai/mistral-nemotron
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-agent
+    litellm_params:
+      model: nvidia_nim/mistralai/mistral-nemotron
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-agent-fb
+    litellm_params:
+      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-parse
+    litellm_params:
+      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      api_key: os.environ/NVIDIA_API_KEY
+  - model_name: kh-parse-fb
+    litellm_params:
+      model: nvidia_nim/mistralai/mistral-nemotron
+      api_key: os.environ/NVIDIA_API_KEY
+
+router_settings:
+  num_retries: 1
+  timeout: 20
+  allowed_fails: 3
+  cooldown_time: 300
+  fallbacks:
+    - kh-extract-image: [kh-extract-image-fb]
+    - kh-extract-text: [kh-extract-text-fb]
+    - kh-agent: [kh-agent-fb]
+    - kh-parse: [kh-parse-fb]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+
+# Not used in the prototype. Another provider can be added later by config only, e.g.:
+#  - model_name: kh-agent-alt
+#    litellm_params: { model: <provider>/<model>, api_key: os.environ/<PROVIDER>_API_KEY }

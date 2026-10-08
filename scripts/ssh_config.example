@@ -1,0 +1,4 @@
+Host kh-core
+  HostName <kh-core-public-ip>
+  User ubuntu
+  ServerAliveInterval 30

@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "effective_from": "2026-04-01",
+  "description": "Synthetic sample policy for the prototype (PRD §8). breach_if is JsonLogic evaluated over the line context.",
+  "city_tiers": {
+    "1": [
+      "Mumbai",
+      "Delhi",
+      "Bengaluru",
+      "Chennai",
+      "Hyderabad",
+      "Kolkata"
+    ],
+    "default": "2"
+  },
+  "context_fields": [
+    "category",
+    "amount_paise",
+    "per_night_paise",
+    "per_person_paise",
+    "city_tier",
+    "age_days",
+    "has_gst_invoice",
+    "attendees_count",
+    "is_client_meal",
+    "cab_class",
+    "excluded_item",
+    "bill_in_employee_name"
+  ],
+  "rules": [
+    {
+      "id": "P-HTL-1",
+      "applies_to": {
+        "category": "hotel"
+      },
+      "breach_if": {
+        ">": [
+          {
+            "var": "per_night_paise"
+          },
+          {
+            "if": [
+              {
+                "==": [
+                  {
+                    "var": "city_tier"
+                  },
+                  "1"
+                ]
+              },
+              600000,
+              450000
+            ]
+          }
+        ]
+      },
+      "cap": {
+        "per": "night",
+        "amount_paise": {
+          "tier_1": 600000,
+          "default": 450000
+        }
+      },
+      "severity": "amber",
+      "remedies": [
+        "justify",
+        "pay_difference"
+      ],
+      "requires": [
+        "reason"
+      ],
+      "message": "Hotel is above the nightly cap for this city."
+    },
+    {
+      "id": "P-MEAL-1",
+      "applies_to": {
+        "category": "meal"
+      },
+      "breach_if": {
+        ">": [
+          {
+            "var": "per_person_paise"
+          },
+          100000
+        ]
+      },
+      "cap": {
+        "per": "person_day",
+        "amount_paise": 100000
+      },
+      "severity": "amber",
+      "remedies": [
+        "justify",
+        "add_attendees"
+      ],
+      "requires": [
+        "attendees_if_client"
+      ],
+      "message": "Meal is above the per-person daily limit."
+    },
+    {
+      "id": "P-CAB-1",
+      "applies_to": {
+        "category": "cab"
+      },
+      "breach_if": {
+        "in": [
+          {
+            "var": "cab_class"
+          },
+          [
+            "premium",
+            "luxury"
+          ]
+        ]
+      },
+      "severity": "amber",
+      "remedies": [
+        "justify"
+      ],
+      "requires": [
+        "reason"
+      ],
+      "message": "Premium cab class needs a reason."
+    },
+    {
+      "id": "P-GST-1",
+      "applies_to": {
+        "category": "*"
+      },
+      "breach_if": {
+        "and": [
+          {
+            ">": [
+              {
+                "var": "amount_paise"
+              },
+              500000
+            ]
+          },
+          {
+            "!": {
+              "var": "has_gst_invoice"
+            }
+          }
+        ]
+      },
+      "severity": "amber",
+      "remedies": [
+        "upload_gst_invoice"
+      ],
+      "message": "Bills above ₹5,000 need a GST invoice."
+    },
+    {
+      "id": "P-AGE-1",
+      "applies_to": {
+        "category": "*"
+      },
+      "breach_if": {
+        ">": [
+          {
+            "var": "age_days"
+          },
+          60
+        ]
+      },
+      "severity": "red",
+      "remedies": [
+        "manager_exception"
+      ],
+      "message": "Receipts older than 60 days are not reimbursable."
+    },
+    {
+      "id": "P-EXCL-1",
+      "applies_to": {
+        "category": "*"
+      },
+      "breach_if": {
+        "!!": {
+          "var": "excluded_item"
+        }
+      },
+      "severity": "red",
+      "remedies": [
+        "exclude_line"
+      ],
+      "message": "Alcohol, fines, personal items and loyalty redemptions are excluded."
+    },
+    {
+      "id": "P-TEL-1",
+      "applies_to": {
+        "category": "broadband"
+      },
+      "breach_if": {
+        "!": {
+          "var": "bill_in_employee_name"
+        }
+      },
+      "severity": "amber",
+      "remedies": [
+        "upload_proper_bill"
+      ],
+      "message": "Broadband bill must be in the employee's name or address; amount is capped by entitlement."
+    }
+  ]
+}
