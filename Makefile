@@ -2,13 +2,13 @@
 # BACKEND workspace = dev checkout ~/kharcha on kh-core. Hosted stack = release checkout /opt/kharcha.
 REL=/opt/kharcha
 HOSTED=cd $(REL) && docker compose --env-file .env -f deploy/server/docker-compose.yml
-SVC?=postgres redis minio
+SVC?=postgres redis
 UVB=cd backend && uv run --env-file ../.env.dev
 .PHONY: help infra-up status dev-api dev-worker migrate-dev seed-dev backend-test llm-smoke contract-check mock-api android-test eval deploy
 
 help:            ## list commands
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
-infra-up:        ## BACKEND: start shared services from the release checkout, e.g. make infra-up SVC="postgres redis minio mock-erp"
+infra-up:        ## BACKEND: start shared services from the release checkout, e.g. make infra-up SVC="postgres redis mock-erp"
 	cd $(REL) && git pull --ff-only
 	$(HOSTED) up -d --build $(SVC)
 status:          ## BACKEND: Kharcha containers, all container memory (incl. Guacamole), free RAM

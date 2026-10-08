@@ -24,7 +24,7 @@ Development is split across two machines that share this one repository through 
 
 ## Stack (do not substitute without asking)
 - backend/, forensics/, mock-erp/, gateway/: Python 3.12, FastAPI, SQLAlchemy 2, Alembic, Pydantic v2,
-  RQ + Redis, PostgreSQL 16, MinIO (S3). Tooling: uv, ruff, mypy, pytest.
+  RQ + Redis, PostgreSQL 16, local file storage for originals (STORAGE_DIR, behind a Storage interface). Tooling: uv, ruff, mypy, pytest.
 - android/: Kotlin 2.x, Jetpack Compose, Hilt, Room (KSP), WorkManager, Retrofit + kotlinx.serialization,
   ML Kit (Document Scanner, Text Recognition v2, GenAI Prompt API), LiteRT-LM. Package: ai.kharcha.
   minSdk 26, compileSdk/targetSdk = latest stable. Gradle version catalog (libs.versions.toml).

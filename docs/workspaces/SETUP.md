@@ -22,7 +22,7 @@ cp docs/workspaces/CLAUDE.local.BACKEND.md CLAUDE.local.md
 # release checkout (hosted stack)
 git clone git@github.com:<you>/kharcha.git /opt/kharcha
 cp /opt/kharcha/.env.example /opt/kharcha/.env && chmod 600 /opt/kharcha/.env   # fill DOMAIN, passwords, NVIDIA_API_KEY
-make infra-up                                          # postgres, redis, minio (more services as tasks land)
+make infra-up                                          # postgres, redis (more services as tasks land)
 ```
 ## 3. Laptop — APP workspace
 ```bash

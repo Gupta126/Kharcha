@@ -4,7 +4,7 @@ This file resolves every open choice in docs/PRD.pdf so the build can proceed wi
 
 > **VM-specific override:** kh-core already runs host **nginx** on 80/443 and **Apache Guacamole** in Docker.
 > Kharcha therefore uses the existing nginx as its public entry (deploy/server/nginx/kharcha.conf + certbot) instead of
-> the Caddy container shown in the PRD. Guacamole, its containers and the existing nginx sites must never be changed.
+> the Caddy container shown in the PRD. Original files use local storage instead of the MinIO container in the PRD. Guacamole, its containers and the existing nginx sites must never be changed.
 If this file and the PDF differ, this file wins. Change it only by explicit decision.
 
 ## 1. Locked decisions
@@ -17,13 +17,13 @@ If this file and the PDF differ, this file wins. Change it only by explicit deci
 | Financial year | 1 April to 31 March. |
 | Languages | English + Hindi OCR; UI English. |
 | Max upload | 20 files per drop, 15 MB per file, PDF ≤ 10 pages. |
-| Originals | Stay on device until submit; uploaded to MinIO bucket `originals` on submit. |
+| Originals | Stay on device until submit; then uploaded and written under `STORAGE_DIR/<employee_id>/<sha256>.<ext>` via a `Storage` interface (`LocalStorage` now; an S3 implementation can be added later). No MinIO: its Docker Hub image was removed in 2026. |
 | Queue names | `extract`, `forensics`, `agent`, `erp`; the dev runner prefixes them with `QUEUE_PREFIX=dev-`. |
-| Ports | hosted api 127.0.0.1:8000 (behind host nginx 443), dev api 127.0.0.1:8001, mock-erp 8090, forensics 8085, litellm 4000, postgres 5432, redis 6379, minio 9000/9001 — all bound to 127.0.0.1; only host nginx listens publicly. |
+| Ports | hosted api 127.0.0.1:8000 (behind host nginx 443), dev api 127.0.0.1:8001, mock-erp 8090, forensics 8085, litellm 4000, postgres 5432, redis 6379 — all bound to 127.0.0.1; only host nginx listens publicly. |
 | Server | One Oracle VM, kh-core (A1.Flex arm64, 2 OCPU, 12 GB, Ubuntu 24.04): Claude Code development AND the hosted backend, alongside the existing Apache Guacamole. No micro VMs. |
 | Edge | Existing host nginx; Kharcha gets its own server block for its subdomain; TLS by certbot. No Caddy. |
 | Checkouts | `~/kharcha` = dev checkout (Claude Code works here); `/opt/kharcha` = release checkout (hosted stack, main or a tag). |
-| Databases | `kharcha` (hosted), `kharcha_dev` (dev runner), `kharcha_test` (pytest) in the same Postgres; Redis DB 0 hosted, DB 1 dev; buckets `originals` / `originals-dev`. |
+| Databases | `kharcha` (hosted), `kharcha_dev` (dev runner), `kharcha_test` (pytest) in the same Postgres; Redis DB 0 hosted, DB 1 dev; storage `/data/originals` (volume) / `~/kharcha-data/originals-dev`. |
 | LLM | NVIDIA hosted models only (build.nvidia.com) through LiteLLM. No local model on the VM. |
 | Prompt files | `backend/app/llm/prompts/<name>_v<N>.md` (extraction) and `backend/app/agent/prompts/<name>_v<N>.md` (agent). |
 

@@ -3,6 +3,7 @@
 # The VM's existing host nginx (which also fronts Apache Guacamole) is the only public entry (80/443);
 # it proxies the Kharcha subdomain to api on 127.0.0.1:8000 (deploy/server/nginx/kharcha.conf).
 # Every port here binds to 127.0.0.1. Memory caps are sized to leave room for Guacamole.
+# Original receipt files are stored on the `originals` volume (no MinIO: its Docker Hub image was removed in 2026).
 name: kharcha
 services:
   api:
@@ -10,7 +11,7 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--proxy-headers", "--forwarded-allow-ips", "*"]
     env_file: ../../.env
     ports: [ "127.0.0.1:8000:8000" ]
-    volumes: [ "../../data/seed:/data/seed:ro" ]
+    volumes: [ "../../data/seed:/data/seed:ro", "originals:/data/originals" ]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_started }
@@ -20,6 +21,7 @@ services:
     build: ../../backend
     command: rq worker --url redis://redis:6379/0 extract forensics agent erp
     env_file: ../../.env
+    volumes: [ "originals:/data/originals" ]
     depends_on: [ postgres, redis ]
     mem_limit: 640m
     restart: unless-stopped
@@ -59,14 +61,4 @@ services:
     ports: [ "127.0.0.1:6379:6379" ]
     mem_limit: 192m
     restart: unless-stopped
-  minio:
-    image: minio/minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes: [ "minio:/data" ]
-    ports: [ "127.0.0.1:9000:9000", "127.0.0.1:9001:9001" ]
-    mem_limit: 384m
-    restart: unless-stopped
-volumes: { pg: {}, redis: {}, minio: {} }
+volumes: { pg: {}, redis: {}, originals: {} }

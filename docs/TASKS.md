@@ -68,7 +68,7 @@ Verify: `make seed-dev && cd backend && uv run --env-file ../.env.dev pytest -q 
 ### [ ] T-06 Server stack and dev runner — CLAUDE
 Workspace: BACKEND | Depends: T-02, T-03 | Refs: deploy/server/docker-compose.yml, Makefile, SPEC §1, docs/workspaces/BACKEND.md
 Deliver: forensics placeholder app with `/health`; mock-erp and gateway Dockerfiles; settings support QUEUE_PREFIX and
-TEST_DATABASE_URL; `make dev-api` / `make dev-worker` run against .env.dev. Merge to main, then `make infra-up SVC="postgres redis minio mock-erp forensics litellm"`.
+TEST_DATABASE_URL; `make dev-api` / `make dev-worker` run against .env.dev. Merge to main, then `make infra-up SVC="postgres redis mock-erp forensics litellm"`.
 Done when: dev API on 127.0.0.1:8001 reports db/redis/erp ok; hosted compose file passes `config`.
 Verify: `docker compose --env-file .env.example -f deploy/server/docker-compose.yml config -q && (make dev-api &) && sleep 10 && curl -sf 127.0.0.1:8001/v1/healthz`
 
@@ -164,7 +164,7 @@ Verify: `cd backend && LLM_MODE=stub uv run pytest -q tests/test_agent.py`
 
 ### [ ] T-19 Submit, ERP sync and approvals — CLAUDE
 Workspace: BACKEND | Depends: T-16, T-03 | Refs: SPEC §3–4
-Deliver: `workers/submit_to_erp.py`, status polling job, `api/approvals.py`, MinIO upload of originals on submit.
+Deliver: `workers/submit_to_erp.py`, status polling job, `api/approvals.py`, `services/storage.py` (Storage interface + LocalStorage) saving originals on submit.
 Done when: submit → in_review → approved → paid via mock ERP; return reopens as draft and releases reservations.
 Verify: `cd backend && uv run --env-file ../.env.dev pytest -q tests/test_submit_flow.py` (mock ERP from infra-up)
 

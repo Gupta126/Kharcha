@@ -12,9 +12,9 @@ kh-core (VM.Standard.A1.Flex, arm64, 2 OCPU / 12 GB) is both the development mac
 | Checkout | `~/kharcha` (feature branches) | `/opt/kharcha` (main or a tag) |
 | Started by | `make dev-api`, `make dev-worker` (host processes via uv) | `make deploy REF=...` (HUMAN) |
 | API | 127.0.0.1:8001 (tunnel only) | host nginx https://$DOMAIN → 127.0.0.1:8000 |
-| Data | `kharcha_dev`, Redis DB 1, bucket `originals-dev` | `kharcha`, Redis DB 0, bucket `originals` |
+| Data | `kharcha_dev`, Redis DB 1, `~/kharcha-data/originals-dev` | `kharcha`, Redis DB 0, volume `originals` |
 | Env | `~/kharcha/.env.dev` | `/opt/kharcha/.env` |
-Postgres, Redis, MinIO, mock ERP, forensics and the LiteLLM gateway run once (hosted compose project `kharcha`)
+Postgres, Redis, mock ERP, forensics and the LiteLLM gateway run once (hosted compose project `kharcha`)
 and are shared by both roles through 127.0.0.1. Only the existing host nginx (80/443) is reachable from the internet;
 it already serves Apache Guacamole and gets one extra server block for Kharcha. Do not touch Guacamole.
 
@@ -26,7 +26,7 @@ Dev and hosted share the same NVIDIA key and limits: keep `LLM_MODE=stub` in .en
 | Process | Approx. |
 |---|---|
 | Apache Guacamole + host nginx (existing, not ours) | measure with `docker stats` |
-| Hosted stack (api, worker, forensics, mock-erp, litellm, postgres, redis, minio) | ~3.8 GB caps |
+| Hosted stack (api, worker, forensics, mock-erp, litellm, postgres, redis) | ~3.5 GB caps |
 | Dev runner (uvicorn --reload + rq worker) | ~0.6 GB |
 | Claude Code + uv/pytest runs | ~1.5–2 GB |
 | OS + page cache | ~1–2 GB |
