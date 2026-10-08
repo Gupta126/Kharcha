@@ -14,7 +14,7 @@ How to use: start a fresh Claude Code session in the repo root for each task and
 Work in ID order unless "Depends" says otherwise. Mark `[x]` only after every Verify command passes.
 Owner: **CLAUDE** = Claude Code does it end to end; **HUMAN** = you do it (console, keys, DNS, devices);
 **HUMAN-VERIFY** = Claude Code builds it with fakes/tests, you confirm on a real phone or VM.
-Refs: PRD §n = section "## PRD §n" in docs/PRD.md (never the PDF); SPEC §n = docs/SPEC.md section.
+Refs: PRD §n = docs/PRD.pdf section; SPEC §n = docs/SPEC.md section.
 
 ---
 ## Phase 0 — Foundations

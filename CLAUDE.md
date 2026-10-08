@@ -5,7 +5,7 @@ Turns a pile of receipts into a verified, policy-checked, submit-ready claim.
 All data is synthetic. The finance system is mocked. Never use real receipts or real company data.
 
 ## Source of truth
-- Product + design: docs/PRD.md (text version of docs/PRD.pdf). Sections are headed "## PRD §n"; read only the sections a task references. Never open docs/PRD.pdf.
+- Product + design: @docs/PRD.pdf (Part A = what, Part B = how). Sections are referenced as "PRD §n".
 - Locked decisions, contracts and algorithms: @docs/SPEC.md  (wins over the PDF if they ever differ)
 - Work breakdown: @docs/TASKS.md  — implement ONE task per session, in dependency order.
 - Database: docs/schema.sql (Alembic migrations must produce exactly this schema).
