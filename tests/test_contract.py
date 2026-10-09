@@ -6,10 +6,8 @@ import yaml
 
 def load_openapi_spec():
     """Load the OpenAPI specification from contracts/openapi.yaml."""
-    with open("contracts/openapi.yaml", "r") as f:
+    with open("../contracts/openapi.yaml", "r") as f:
         return yaml.safe_load(f)
-
-
 def get_app_routes(client: TestClient):
     """Extract all routes from the FastAPI app, including those from included routers."""
     routes = []
