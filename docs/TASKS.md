@@ -34,7 +34,7 @@ Deliver: directory tree from PRD §20 (android/ and console/ only as empty place
 Done when: `make help` lists commands; `uv sync` succeeds in each Python project.
 Verify: `make help && (cd backend && uv sync && uv run ruff check .)`
 
-### [ ] T-02 Backend skeleton — CLAUDE
+### [x] T-02 Backend skeleton — CLAUDE
 Workspace: BACKEND | Depends: T-01 | Refs: PRD §22, SPEC §1–2
 Deliver: `backend/app/main.py` (FastAPI, `/v1` prefix), `core/settings.py` (pydantic-settings, all .env keys),
 `core/errors.py` (SPEC §2 format + exception handlers), `api/health.py` (`GET /v1/healthz`, checks db/redis/erp/llm),
