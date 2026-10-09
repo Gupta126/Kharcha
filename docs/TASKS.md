@@ -43,7 +43,7 @@ Deliver: `backend/app/main.py` (FastAPI, `/v1` prefix), `core/settings.py` (pyda
 Done when: healthz returns the SPEC shape; unknown route returns the SPEC error JSON.
 Verify: `cd backend && uv run pytest -q`
 
-### [ ] T-03 Mock ERP service — CLAUDE
+### [x] T-03 Mock ERP service — CLAUDE
 Workspace: BACKEND | Depends: T-01 | Refs: PRD §22 (Mock ERP contract), SPEC §7
 Deliver: `mock-erp/app/main.py` with endpoints from PRD §22, loading `data/seed/employees.json`;
 in-memory store; status timeline (submitted→in_review 10 s→approved 20 s→paid 30 s, configurable);
