@@ -44,6 +44,7 @@ Each task in docs/TASKS.md lists its own verify commands. A task is done only wh
 
 ## Rules
 - Money is integer paise (BIGINT / Long). Dates ISO 8601. IDs UUIDv7 strings.
+- Never hardcode credentials, URLs with passwords or API keys in code or tests; always read them from environment variables.
 - Never commit secrets. Only .env.example is committed. Do not print key values in logs or output.
 - Never call an LLM vendor directly from code; use LLMGateway (backend) or ReceiptExtractor (android).
 - The LLM never computes money, limits or policy outcomes — deterministic code does; the LLM extracts and words.

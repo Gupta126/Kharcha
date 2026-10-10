@@ -108,3 +108,11 @@ pnpm-debug.log*
 *.log
 *.swp
 *~
+.env.dev
+CLAUDE.local.md
+.claude/settings.local.json
+*.pyc
+.venv/
+*.bak
+*.backup
+*.debug

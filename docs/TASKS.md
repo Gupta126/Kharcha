@@ -51,7 +51,7 @@ in-memory store; status timeline (submitted→in_review 10 s→approved 20 s→p
 Done when: Arjun's broadband shows paid = limit; a posted reimbursement reaches `paid` on the timer.
 Verify: `cd mock-erp && uv run pytest -q`
 
-### [ ] T-04 Database models and migration — CLAUDE
+### [x] T-04 Database models and migration — CLAUDE
 Workspace: BACKEND | Depends: T-02 | Refs: PRD §23, docs/schema.sql
 Deliver: SQLAlchemy 2 models in `backend/app/models/`, Alembic env + migration `0001_initial` equal to
 docs/schema.sql (+ created_at/updated_at); async session factory.
