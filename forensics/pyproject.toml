@@ -15,7 +15,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-dependencies = []
+dependencies = [
+    "fastapi>=0.143.0",
+    "pydantic-settings>=2.15.0",
+    "uvicorn[standard]>=0.54.0",
+]
 
 [build-system]
 requires = ["setuptools>=61.0"]
