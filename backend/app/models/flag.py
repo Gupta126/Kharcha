@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Column, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -17,7 +18,7 @@ class Flag(Base, BaseModel):
     policy_version = Column(Integer)
     message = Column(Text, nullable=False)
     # evidence will be stored as JSON text
-    evidence = Column(Text, nullable=False, default='{}')
+    evidence = Column(Text, nullable=False, default="{}")
     # status will be handled with default 'open' in DB
     resolution_note = Column(Text)
 

@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -13,10 +14,10 @@ class Question(Base, BaseModel):
     field = Column(Text, nullable=False)
     prompt = Column(Text, nullable=False)
     # options will be stored as JSON text
-    options = Column(Text, nullable=False, default='[]')
+    options = Column(Text, nullable=False, default="[]")
     # answer will be stored as JSON text
     answer = Column(Text)
-    asked_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    asked_at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
     answered_at = Column(DateTime(timezone=True))
 
     # Relationships

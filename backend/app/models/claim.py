@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Date, BigInteger, Enum, ForeignKey, Integer, Text
+from sqlalchemy import BigInteger, Column, Date, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -23,7 +24,9 @@ class Claim(Base, BaseModel):
     # Relationships
     employee = relationship("Employee", foreign_keys=[employee_id], back_populates="claims")
     approver = relationship("Employee", foreign_keys=[approver_id])
-    expense_lines = relationship("ExpenseLine", back_populates="claim", cascade="all, delete-orphan")
+    expense_lines = relationship(
+        "ExpenseLine", back_populates="claim", cascade="all, delete-orphan"
+    )
     documents = relationship("Document", back_populates="claim")
     flags = relationship("Flag", back_populates="claim")
     questions = relationship("Question", back_populates="claim")

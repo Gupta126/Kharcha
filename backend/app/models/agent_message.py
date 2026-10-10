@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -13,7 +14,7 @@ class AgentMessage(Base, BaseModel):
     role = Column(Text, nullable=False)
     # content will be stored as JSON text
     content = Column(Text, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     # Relationships
     claim = relationship("Claim", back_populates="agent_messages")

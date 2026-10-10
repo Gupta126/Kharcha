@@ -1,13 +1,11 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
-import os
 
 
 class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = Field(..., env="DATABASE_URL")
-    TEST_DATABASE_URL: Optional[str] = Field(None, env="TEST_DATABASE_URL")
+    TEST_DATABASE_URL: str | None = Field(None, env="TEST_DATABASE_URL")
 
     # Redis
     REDIS_URL: str = Field(..., env="REDIS_URL")
@@ -36,9 +34,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/v1"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=True
+        env_file=".env", env_file_encoding="utf-8", case_sensitive=True
     )
 
 

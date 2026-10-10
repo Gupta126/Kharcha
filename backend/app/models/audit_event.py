@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Text
+from sqlalchemy import Column, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -15,7 +16,7 @@ class AuditEvent(Base, BaseModel):
     # before and after will be stored as JSON text
     before = Column(Text)
     after = Column(Text)
-    at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     # Relationships
     claim = relationship("Claim", back_populates="audit_events")
