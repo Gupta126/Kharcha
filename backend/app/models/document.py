@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, BigInteger, Enum, Text
+from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -24,7 +25,9 @@ class Document(Base, BaseModel):
     # Relationships
     employee = relationship("Employee", back_populates="documents")
     claim = relationship("Claim", back_populates="documents")
-    extracted_fields = relationship("ExtractedField", back_populates="document", cascade="all, delete-orphan")
+    extracted_fields = relationship(
+        "ExtractedField", back_populates="document", cascade="all, delete-orphan"
+    )
 
     # Table constraints
     __table_args__ = (

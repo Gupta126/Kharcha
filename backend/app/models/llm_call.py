@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -18,7 +19,7 @@ class LLMCall(Base, BaseModel):
     tokens_out = Column(Integer)
     success = Column(Integer)  # Boolean in DB (0/1)
     failure = Column(Text)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default='now()')
+    created_at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
 
     # Relationships
     claim = relationship("Claim", back_populates="llm_calls")

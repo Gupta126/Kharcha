@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Date, BigInteger, Enum, Text, Integer
+from sqlalchemy import BigInteger, Column, Date, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from app.models.base import Base, BaseModel
 
 
@@ -22,7 +23,7 @@ class ExpenseLine(Base, BaseModel):
     gstin = Column(Text)
     purpose = Column(Text)
     # attendees will be stored as JSON text
-    attendees = Column(Text, nullable=False, default='[]')
+    attendees = Column(Text, nullable=False, default="[]")
     excluded_reason = Column(Text)
 
     # Relationships

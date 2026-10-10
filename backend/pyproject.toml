@@ -33,10 +33,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["app*"]
 
-[tool.ruff]
-select = ["E", "F", "W", "C90"]
-ignore = []
-
 [tool.mypy]
 python_version = "3.12"
 warn_return_any = true
@@ -51,3 +47,16 @@ dev = [
     "pyyaml>=6.0.3",
     "ruff>=0.16.10",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["B008", "UP042"]  # keep (str, Enum): StrEnum changes str() output
+
+[tool.ruff.lint.per-file-ignores]
+"alembic/env.py" = ["E402"]
+"tests/**" = ["B011", "E501"]
