@@ -34,3 +34,8 @@
 | T-04 | Models include `created_at/updated_at` | `backend/app/models/base.py` | PASS | Base model includes these columns |
 | T-04 | async session factory | `backend/app/db/session.py` | PASS | Uses `AsyncSession` |
 | T-04 | migration equal to `docs/schema.sql` | `test_schema_matches_sql.py` | PASS | Migration passes the schema match test |
+
+## Re-audit after fixes
+All five acceptance scripts (scripts/accept/T-00..T-04.sh) pass on main.
+Fixes: T-02 tests (health, errors, contract); T-01 ruff config + clean; T-04 SQLAlchemy 2 typed models;
+T-00 Prism needs Node 22; T-01 folder checks match the BACKEND workspace (android tracked, console in T-28).
