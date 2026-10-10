@@ -26,7 +26,7 @@ make infra-up                                          # postgres, redis (more s
 ```
 ## 3. Laptop — APP workspace
 ```bash
-# Android SDK (Android Studio or command-line tools), JDK 17, Node.js LTS, Git, Claude Code CLI
+# Android SDK (Android Studio or command-line tools), JDK 17, Node.js 22 LTS (via nvm; Prism needs >= 20), Git, Claude Code CLI
 git clone git@github.com:<you>/kharcha.git && cd kharcha
 git sparse-checkout set --no-cone '/*' '!/backend/' '!/forensics/' '!/mock-erp/' '!/gateway/' '!/eval/'   # optional
 cp docs/workspaces/CLAUDE.local.APP.md CLAUDE.local.md
