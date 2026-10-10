@@ -5,36 +5,43 @@
 model_list:
   - model_name: kh-extract-image
     litellm_params:
-      model: nvidia_nim/meta/llama-3.2-11b-vision-instruct           # 7.6 s, correct
+      model: nvidia_nim/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning # ~1.6 s with reasoning off
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-extract-image-fb
     litellm_params:
-      model: nvidia_nim/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning # 16.7 s, correct
+      model: nvidia_nim/meta/llama-3.2-11b-vision-instruct           # 7-13 s, not a reasoning model
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-extract-text
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b             # 0.4 s
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-extract-text-fb
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b         # ~19 s (reasoning)
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-agent
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-agent-fb
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-parse
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
   - model_name: kh-parse-fb
     litellm_params:
       model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b
       api_key: os.environ/NVIDIA_API_KEY
+      extra_body: { chat_template_kwargs: { enable_thinking: false } }   # reasoning off: direct answers
 
 router_settings:
   num_retries: 1

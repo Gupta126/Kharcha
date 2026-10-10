@@ -7,7 +7,7 @@ KEY = os.environ["NV"]
 URL = "https://integrate.api.nvidia.com/v1/chat/completions"
 
 def call(model, messages, max_tokens=200):
-    body = json.dumps({"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0}).encode()
+    body = json.dumps({"model": model, "messages": messages, "max_tokens": max_tokens, "temperature": 0, **({"chat_template_kwargs": {"enable_thinking": False}} if "omni" in model else {})}).encode()
     req = urllib.request.Request(URL, body, {"Authorization": f"Bearer {KEY}", "Content-Type": "application/json"})
     t = time.time()
     try:
