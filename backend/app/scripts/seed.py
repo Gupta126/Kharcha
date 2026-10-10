@@ -2,25 +2,24 @@ import argparse
 import asyncio
 import json
 import logging
-from datetime import datetime, timezone
-import uuid6
-from pathlib import Path
 
-from sqlalchemy.ext.asyncio import create_async_engine
+import uuid6
 from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.settings import settings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 async def seed_db(employees_path: str, policy_path: str):
     engine = create_async_engine(str(settings.DATABASE_URL))
 
-    with open(employees_path, "r") as f:
+    with open(employees_path) as f:
         emp_data = json.load(f)
-    
-    with open(policy_path, "r") as f:
+
+    with open(policy_path) as f:
         policy_data = json.load(f)
 
     async with engine.begin() as conn:
@@ -28,10 +27,11 @@ async def seed_db(employees_path: str, policy_path: str):
         version = policy_data.get("version", 1)
         effective_from = policy_data.get("effective_from")
         # Ensure active
-        
+
         await conn.execute(
             text("""
-            INSERT INTO policies (id, version, rules, effective_from, active, created_at, updated_at)
+            INSERT INTO policies
+                (id, version, rules, effective_from, active, created_at, updated_at)
             VALUES (:id, :version, :rules, :effective_from, :active, now(), now())
             ON CONFLICT (version) DO UPDATE SET
                 rules = EXCLUDED.rules,
@@ -44,8 +44,8 @@ async def seed_db(employees_path: str, policy_path: str):
                 "version": version,
                 "rules": json.dumps(policy_data.get("rules", [])),
                 "effective_from": effective_from,
-                "active": True
-            }
+                "active": True,
+            },
         )
 
         # Build employees map for manager linking
@@ -54,11 +54,14 @@ async def seed_db(employees_path: str, policy_path: str):
         # First pass: Insert all employees without manager_id to avoid FK violations
         for emp in emp_data.get("employees", []):
             emp_id = emp["id"]
-            
+
             await conn.execute(
                 text("""
-                INSERT INTO employees (id, email, name, grade, cost_centre, home_city, manager_id, role, created_at, updated_at)
-                VALUES (:id, :email, :name, :grade, :cost_centre, :home_city, NULL, :role, now(), now())
+                INSERT INTO employees
+                    (id, email, name, grade, cost_centre, home_city, manager_id, role,
+                     created_at, updated_at)
+                VALUES (:id, :email, :name, :grade, :cost_centre, :home_city, NULL, :role,
+                        now(), now())
                 ON CONFLICT (id) DO UPDATE SET
                     email = EXCLUDED.email,
                     name = EXCLUDED.name,
@@ -75,8 +78,8 @@ async def seed_db(employees_path: str, policy_path: str):
                     "grade": emp["grade"],
                     "cost_centre": emp.get("cost_centre"),
                     "home_city": emp.get("home_city"),
-                    "role": emp.get("role", "employee")
-                }
+                    "role": emp.get("role", "employee"),
+                },
             )
 
         # Second pass: Update manager_id and insert entitlements
@@ -88,7 +91,7 @@ async def seed_db(employees_path: str, policy_path: str):
             if manager_id:
                 await conn.execute(
                     text("UPDATE employees SET manager_id = :manager_id WHERE id = :id"),
-                    {"manager_id": manager_id, "id": emp_id}
+                    {"manager_id": manager_id, "id": emp_id},
                 )
 
             # Seed Entitlements
@@ -97,8 +100,11 @@ async def seed_db(employees_path: str, policy_path: str):
                 # to do an upsert
                 await conn.execute(
                     text("""
-                    INSERT INTO entitlements (id, employee_id, category, overall, period, period_start, period_end, limit_paise, paid_paise, fetched_at, created_at, updated_at)
-                    VALUES (:id, :employee_id, :category, :overall, :period, :period_start, :period_end, :limit_paise, :paid_paise, now(), now(), now())
+                    INSERT INTO entitlements
+                        (id, employee_id, category, overall, period, period_start, period_end,
+                         limit_paise, paid_paise, fetched_at, created_at, updated_at)
+                    VALUES (:id, :employee_id, :category, :overall, :period, :period_start,
+                            :period_end, :limit_paise, :paid_paise, now(), now(), now())
                     ON CONFLICT (employee_id, category, period_start) DO UPDATE SET
                         overall = EXCLUDED.overall,
                         period = EXCLUDED.period,
@@ -117,8 +123,8 @@ async def seed_db(employees_path: str, policy_path: str):
                         "period_start": ent.get("period_start"),
                         "period_end": ent.get("period_end"),
                         "limit_paise": ent.get("limit_paise", 0),
-                        "paid_paise": ent.get("paid_paise", 0)
-                    }
+                        "paid_paise": ent.get("paid_paise", 0),
+                    },
                 )
 
     await engine.dispose()

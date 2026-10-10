@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
@@ -20,7 +20,11 @@ def dummy_validation_endpoint(item: DummyItem):
     return item
 
 
-app.include_router(test_router)
+probe_app = FastAPI()
+probe_app.exception_handlers.update(app.exception_handlers)  # same SPEC error format
+probe_app.dependency_overrides = app.dependency_overrides  # same DB override as the real app
+probe_app.include_router(test_router)
+probe_client = TestClient(probe_app)
 
 
 def test_unknown_route():
@@ -36,7 +40,7 @@ def test_unknown_route():
 
 def test_request_validation_error():
     # Missing required 'name' field
-    response = client.post("/v1/_test_validation", json={"wrong_field": "value"})
+    response = probe_client.post("/v1/_test_validation", json={"wrong_field": "value"})
     assert response.status_code == 422
     data = response.json()
     assert "error" in data
