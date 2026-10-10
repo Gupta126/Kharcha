@@ -20,9 +20,7 @@ class Document(Base, BaseModel):
     employee_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("employees.id"), nullable=False
     )
-    claim_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("claims.id")
-    )
+    claim_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("claims.id"))
     sha256: Mapped[str] = mapped_column(String(64), nullable=False)
     phash: Mapped[int | None] = mapped_column(BigInteger)
     fuzzy_key: Mapped[str | None] = mapped_column(Text)

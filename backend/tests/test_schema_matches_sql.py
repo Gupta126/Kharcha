@@ -164,8 +164,6 @@ if __name__ == "__main__":
     print("All tests passed!")
 
 
-
-
 def test_no_autogenerate_diffs():
     """Ensure the current SQLAlchemy models match the migrated database schema exactly."""
     from app.models.base import Base
