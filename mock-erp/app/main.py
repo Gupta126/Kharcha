@@ -4,6 +4,8 @@ import logging
 
 from .api.health import router as health_router
 from .api.erp import router as erp_router
+from .api.employees import router as employees_router
+from .api.reimbursements import router as reimbursements_router
 from .api.admin import router as admin_router
 from .core.config import settings
 
@@ -30,6 +32,8 @@ app.add_middleware(
 # Include routers
 app.include_router(health_router, tags=["health"])
 app.include_router(erp_router, prefix="/erp", tags=["erp"])
+app.include_router(employees_router)
+app.include_router(reimbursements_router)
 app.include_router(admin_router, prefix="/admin", tags=["admin"])
 
 @app.on_event("startup")
