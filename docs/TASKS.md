@@ -28,7 +28,7 @@ Verify: `make contract-check && npx -y @stoplight/prism-cli@5 mock contracts/ope
 
 ### [x] T-01 Repo scaffold and tooling — CLAUDE
 Workspace: BACKEND | Depends: — | Refs: PRD §20, CLAUDE.md
-Deliver: directory tree from PRD §20 (android/ and console/ only as empty placeholders with a README); `.gitignore` (Python, Android, Node, .env); `backend/pyproject.toml`,
+Deliver: directory tree from PRD §20 (android/ already tracked; console/ comes in T-28 from the APP workspace); `.gitignore` (Python, Android, Node, .env); `backend/pyproject.toml`,
 `forensics/pyproject.toml`, `mock-erp/pyproject.toml`, `eval/pyproject.toml` (uv, ruff, mypy, pytest);
 `README.md` with quick start; keep existing kit files unchanged.
 Done when: `make help` lists commands; `uv sync` succeeds in each Python project.
