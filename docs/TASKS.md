@@ -58,7 +58,7 @@ docs/schema.sql (+ created_at/updated_at); async session factory.
 Done when: migration on an empty DB gives exactly the tables, enums and indexes in schema.sql.
 Verify: `make migrate-dev && cd backend && uv run --env-file ../.env.dev pytest -q tests/test_schema_matches_sql.py`
 
-### [ ] T-05 Seed script and mock auth — CLAUDE
+### [x] T-05 Seed script and mock auth — CLAUDE
 Workspace: BACKEND | Depends: T-03, T-04 | Refs: SPEC §1, §7
 Deliver: `app/scripts/seed.py` (employees, policy v1, entitlements copied from mock ERP),
 `api/auth.py` (`POST /v1/auth/login`), JWT dependency with roles.
