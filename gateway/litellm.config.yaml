@@ -1,39 +1,39 @@
 # Kharcha LLM gateway: NVIDIA hosted models only (build.nvidia.com, OpenAI-compatible).
-# Confirm each model id on its build.nvidia.com page before use (H-05). No local model.
-# Fallback = a second NVIDIA model.
-# If both fail, the backend switches to no-LLM degraded mode (SPEC §6).
+# Models verified 2026-10-10 with /tmp/nv_probe.py. NVIDIA retires models: run `make llm-smoke`
+# before demos; on HTTP 410, list current models (GET /v1/models), test, and update here.
+# Fallback = a second NVIDIA model. If both fail, the backend switches to no-LLM degraded mode (SPEC §6).
 model_list:
   - model_name: kh-extract-image
     litellm_params:
-      model: nvidia_nim/nvidia/nemotron-nano-12b-v2-vl
+      model: nvidia_nim/meta/llama-3.2-11b-vision-instruct           # 7.6 s, correct
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-extract-image-fb
     litellm_params:
-      model: nvidia_nim/nvidia/llama-3.1-nemotron-nano-vl-8b-v1
+      model: nvidia_nim/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning # 16.7 s, correct
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-extract-text
     litellm_params:
-      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b             # 0.4 s
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-extract-text-fb
     litellm_params:
-      model: nvidia_nim/mistralai/mistral-nemotron
+      model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b         # ~19 s (reasoning)
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-agent
     litellm_params:
-      model: nvidia_nim/mistralai/mistral-nemotron
+      model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-agent-fb
     litellm_params:
-      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-parse
     litellm_params:
-      model: nvidia_nim/nvidia/nvidia-nemotron-nano-9b-v2
+      model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
       api_key: os.environ/NVIDIA_API_KEY
   - model_name: kh-parse-fb
     litellm_params:
-      model: nvidia_nim/mistralai/mistral-nemotron
+      model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b
       api_key: os.environ/NVIDIA_API_KEY
 
 router_settings:
@@ -49,7 +49,3 @@ router_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY
-
-# Not used in the prototype. Another provider can be added later by config only, e.g.:
-#  - model_name: kh-agent-alt
-#    litellm_params: { model: <provider>/<model>, api_key: os.environ/<PROVIDER>_API_KEY }
