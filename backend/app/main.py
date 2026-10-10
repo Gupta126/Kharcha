@@ -11,6 +11,6 @@ app = FastAPI(
 
 # Register exception handlers
 for exc_type, handler in exception_handlers.items():
-    app.add_exception_handler(exc_type, handler)
+    app.add_exception_handler(exc_type, handler)  # type: ignore[arg-type]
 
 app.include_router(health_router, prefix="/v1")

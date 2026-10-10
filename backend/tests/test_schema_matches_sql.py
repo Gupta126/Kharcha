@@ -6,6 +6,8 @@ import os
 import subprocess
 from pathlib import Path
 
+from alembic.autogenerate import compare_metadata
+from alembic.migration import MigrationContext
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Connection
 
@@ -160,3 +162,23 @@ def test_migration_matches_schema():
 if __name__ == "__main__":
     test_migration_matches_schema()
     print("All tests passed!")
+
+
+
+
+def test_no_autogenerate_diffs():
+    """Ensure the current SQLAlchemy models match the migrated database schema exactly."""
+    from app.models.base import Base
+
+    TEST_DATABASE_URL = os.environ["TEST_DATABASE_URL"]
+    engine = create_engine(TEST_DATABASE_URL)
+
+    with engine.connect() as conn:
+        context = MigrationContext.configure(conn)
+        diff = compare_metadata(context, Base.metadata)
+
+        if diff:
+            import pprint
+
+            pprint.pprint(diff)
+        assert not diff, f"Alembic detected schema differences between models and DB: {diff}"
