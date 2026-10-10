@@ -65,7 +65,7 @@ Deliver: `app/scripts/seed.py` (employees, policy v1, entitlements copied from m
 Done when: login as each demo user returns a token; protected route rejects missing token with UNAUTHORIZED.
 Verify: `make seed-dev && cd backend && uv run --env-file ../.env.dev pytest -q tests/test_auth.py`
 
-### [ ] T-06 Server stack and dev runner — CLAUDE
+### [x] T-06 Server stack and dev runner — CLAUDE
 Workspace: BACKEND | Depends: T-02, T-03 | Refs: deploy/server/docker-compose.yml, Makefile, SPEC §1, docs/workspaces/BACKEND.md
 Deliver: forensics placeholder app with `/health`; mock-erp and gateway Dockerfiles; settings support QUEUE_PREFIX and
 TEST_DATABASE_URL; `make dev-api` / `make dev-worker` run against .env.dev. Merge to main, then `make infra-up SVC="postgres redis mock-erp forensics litellm"`.
