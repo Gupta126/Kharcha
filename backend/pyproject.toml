@@ -16,27 +16,22 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastapi>=0.68.0",
-    "uvicorn[standard]>=0.15.0",
-    "pydantic>=1.8.0",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.6",
     "pydantic-settings>=2.0.0",
     "python-dotenv>=0.19.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "uv",
-    "ruff",
-    "mypy",
-    "pytest",
-    "pytest-asyncio",
-    "httpx",
-    "httpx2",
+    "alembic>=1.13.0",
+    "psycopg[binary]>=3.1.0",
+    "sqlalchemy>=2.0",
 ]
 
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app", "alembic"]
 
 [tool.ruff]
 select = ["E", "F", "W", "C90"]
@@ -46,3 +41,12 @@ ignore = []
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.10",
+]
