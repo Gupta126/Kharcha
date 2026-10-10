@@ -38,7 +38,9 @@ services:
     restart: unless-stopped
   litellm:
     build: ../../gateway
-    env_file: ../../.env
+    environment:                                   # only what the gateway needs; no DATABASE_URL
+      NVIDIA_API_KEY: ${NVIDIA_API_KEY}
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
     ports: [ "127.0.0.1:4000:4000" ]
     mem_limit: 512m
     restart: unless-stopped
