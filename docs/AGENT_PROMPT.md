@@ -15,6 +15,7 @@ Follow CLAUDE.md, CLAUDE.local.md and backend/CLAUDE.md, plus everything below.
   Packages are discovered under app* only.
 - Services that run in Docker install from pyproject.toml (`pip install .`); any change to a service must
   pass a docker build plus a short docker run check on a spare 127.0.0.1 port.
+- Before committing Python changes: `uv run ruff format` and `uv run ruff check .` must be clean.
 - Never change Verify commands or the approved acceptance script; never weaken, skip or delete tests.
 - Touch only files needed for the task's Deliver list (plus uv.lock, docs/TASKS.md, docs/progress/, scripts/accept/).
 - Earlier tasks marked [x] are not proof: check that what you build on actually exists and works.

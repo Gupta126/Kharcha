@@ -1,6 +1,17 @@
-from sqlalchemy import BigInteger, Boolean, Column, Date, DateTime, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+import uuid
+from datetime import date, datetime
+
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Text,
+    UniqueConstraint,
+)
+from sqlalchemy.dialects.postgresql import ENUM, UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, BaseModel
 
@@ -8,23 +19,20 @@ from app.models.base import Base, BaseModel
 class Entitlement(Base, BaseModel):
     __tablename__ = "entitlements"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    employee_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"), nullable=False)
-    category = Column(Text)  # Will be handled as ENUM in DB, stored as text in model
-    overall = Column(Boolean, nullable=False, default=False)
-    period = Column(Text)  # Will be handled as ENUM in DB, stored as text in model
-    period_start = Column(Date, nullable=False)
-    period_end = Column(Date, nullable=False)
-    limit_paise = Column(BigInteger, nullable=False)
-    paid_paise = Column(BigInteger, nullable=False, default=0)
-    fetched_at = Column(DateTime(timezone=True), nullable=False)
+    __table_args__ = (UniqueConstraint("employee_id", "category", "period_start"),)
 
-    # Relationships
-    employee = relationship("Employee", back_populates="entitlements")
-
-    # Table constraints
-    __table_args__ = (
-        # Unique constraint: (employee_id, category, period_start)
-        # Note: In practice, we'd use the actual ENUM types, but for SQLAlchemy portability
-        # we'll handle this at the database level through the migration
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    employee_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("employees.id"), nullable=False
     )
+    category: Mapped[str] = mapped_column(Text, nullable=False)
+    overall: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
+    period: Mapped[str] = mapped_column(
+        ENUM("month", "quarter", "fin_year", "per_trip", name="period_kind", create_type=False),
+        nullable=False,
+    )
+    period_start: Mapped[date] = mapped_column(Date, nullable=False)
+    period_end: Mapped[date] = mapped_column(Date, nullable=False)
+    limit_paise: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    paid_paise: Mapped[int] = mapped_column(BigInteger, server_default="0", nullable=False)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

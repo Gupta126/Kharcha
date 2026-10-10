@@ -1,25 +1,23 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Text
+import uuid
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
-from app.models.base import Base, BaseModel
+from app.models.base import Base
 
 
-class AgentMessage(Base, BaseModel):
+class AgentMessage(Base):
     __tablename__ = "agent_messages"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    claim_id = Column(UUID(as_uuid=True), ForeignKey("claims.id"), nullable=False)
-    # role will be stored as text (could be ENUM but keeping simple)
-    role = Column(Text, nullable=False)
-    # content will be stored as JSON text
-    content = Column(Text, nullable=False)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
-
-    # Relationships
-    claim = relationship("Claim", back_populates="agent_messages")
-
-    # Table constraints
-    __table_args__ = (
-        # No additional constraints needed
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    claim_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("claims.id", ondelete="CASCADE"), nullable=False
+    )
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )

@@ -1,24 +1,34 @@
-from sqlalchemy import Column, ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+import uuid
+from typing import TYPE_CHECKING
 
+from sqlalchemy import ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+if TYPE_CHECKING:
+    from app.models.claim import Claim
 from app.models.base import Base, BaseModel
 
 
 class Employee(Base, BaseModel):
     __tablename__ = "employees"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    email = Column(String(255), unique=True, nullable=False)
-    name = Column(String(255), nullable=False)
-    grade = Column(String(50), nullable=False)
-    cost_centre = Column(String(100))
-    home_city = Column(String(100))
-    manager_id = Column(UUID(as_uuid=True), ForeignKey("employees.id"))
-    role = Column(String(50), nullable=False, default="employee")
+    __table_args__ = (
+        Index("ix_employees_email", "email", unique=True),
+        UniqueConstraint("email"),
+    )
 
-    # Relationships
-    manager = relationship("Employee", remote_side=[id], backref="subordinates")
-    entitlements = relationship("Entitlement", back_populates="employee")
-    claims = relationship("Claim", back_populates="employee")
-    documents = relationship("Document", back_populates="employee")
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    grade: Mapped[str] = mapped_column(String(50), nullable=False)
+    cost_centre: Mapped[str | None] = mapped_column(String(100))
+    home_city: Mapped[str | None] = mapped_column(String(100))
+    manager_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("employees.id")
+    )
+    role: Mapped[str] = mapped_column(String(50), server_default="'employee'", nullable=False)
+
+    claims: Mapped[list["Claim"]] = relationship(
+        "Claim", back_populates="employee", foreign_keys="[Claim.employee_id]"
+    )

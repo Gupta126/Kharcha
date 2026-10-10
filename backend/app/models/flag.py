@@ -1,33 +1,41 @@
-from sqlalchemy import Column, ForeignKey, Integer, Text
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+import uuid
+
+from sqlalchemy import ForeignKey, Integer, Text
+from sqlalchemy.dialects.postgresql import ENUM, UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, BaseModel
+
+flag_type_enum = ENUM(
+    "policy",
+    "entitlement",
+    "duplicate",
+    "authenticity",
+    "missing",
+    name="flag_type",
+    create_type=False,
+)
+severity_enum = ENUM("green", "amber", "red", name="severity", create_type=False)
 
 
 class Flag(Base, BaseModel):
     __tablename__ = "flags"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    claim_id = Column(UUID(as_uuid=True), ForeignKey("claims.id"), nullable=False)
-    line_id = Column(UUID(as_uuid=True), ForeignKey("expense_lines.id"))
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"))
-    # type will be handled as ENUM in DB
-    # severity will be handled as ENUM in DB
-    rule_id = Column(Text)
-    policy_version = Column(Integer)
-    message = Column(Text, nullable=False)
-    # evidence will be stored as JSON text
-    evidence = Column(Text, nullable=False, default="{}")
-    # status will be handled with default 'open' in DB
-    resolution_note = Column(Text)
-
-    # Relationships
-    claim = relationship("Claim", back_populates="flags")
-    line = relationship("ExpenseLine")
-    document = relationship("Document")
-
-    # Table constraints
-    __table_args__ = (
-        # Check constraints for type and severity will be created in migration
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    claim_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("claims.id", ondelete="CASCADE"), nullable=False
     )
+    line_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("expense_lines.id")
+    )
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id")
+    )
+    type: Mapped[str] = mapped_column(flag_type_enum, nullable=False)
+    severity: Mapped[str] = mapped_column(severity_enum, nullable=False)
+    rule_id: Mapped[str | None] = mapped_column(Text)
+    policy_version: Mapped[int | None] = mapped_column(Integer)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    evidence: Mapped[str] = mapped_column(Text, server_default="'{}'", nullable=False)
+    status: Mapped[str] = mapped_column(Text, server_default="'open'", nullable=False)
+    resolution_note: Mapped[str | None] = mapped_column(Text)

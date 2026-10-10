@@ -1,31 +1,31 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Text
+import uuid
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql import func
 
-from app.models.base import Base, BaseModel
+from app.models.base import Base
 
 
-class LLMCall(Base, BaseModel):
+class LLMCall(Base):
     __tablename__ = "llm_calls"
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
-    task = Column(Text, nullable=False)
-    provider = Column(Text, nullable=False)
-    model = Column(Text, nullable=False)
-    claim_id = Column(UUID(as_uuid=True), ForeignKey("claims.id"))
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id"))
-    latency_ms = Column(Integer)
-    tokens_in = Column(Integer)
-    tokens_out = Column(Integer)
-    success = Column(Integer)  # Boolean in DB (0/1)
-    failure = Column(Text)
-    created_at = Column(DateTime(timezone=True), nullable=False, server_default="now()")
-
-    # Relationships
-    claim = relationship("Claim", back_populates="llm_calls")
-    document = relationship("Document")
-
-    # Table constraints
-    __table_args__ = (
-        # No additional constraints needed
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    provider: Mapped[str] = mapped_column(Text, nullable=False)
+    model: Mapped[str] = mapped_column(Text, nullable=False)
+    claim_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("claims.id"), nullable=False
+    )
+    document_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("documents.id")
+    )
+    latency_ms: Mapped[int | None] = mapped_column(Integer)
+    tokens_in: Mapped[int | None] = mapped_column(Integer)
+    tokens_out: Mapped[int | None] = mapped_column(Integer)
+    success: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
+    failure: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
