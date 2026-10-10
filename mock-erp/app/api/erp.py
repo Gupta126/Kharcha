@@ -88,7 +88,7 @@ async def get_employee_claims(employee_email: str) -> Dict[str, Any]:
             detail=f"Employee not found: {employee_email}"
         )
     
-    claims = storage.get_claims_by_employee(employee["id"])
+    claims = storage.get_claims_by_employee(employee_email)
     
     return {
         "employee": employee,

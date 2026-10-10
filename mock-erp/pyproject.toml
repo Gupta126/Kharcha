@@ -16,20 +16,11 @@ classifiers = [
 ]
 
 dependencies = [
-    "fastapi>=0.68.0",
-    "uvicorn[standard]>=0.15.0",
-    "pydantic>=1.8.0",
-    "pydantic-settings>=2.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "uv",
-    "ruff",
-    "mypy",
-    "pytest",
-    "httpx",
-    "pytest-asyncio",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.0",
+    "uuid6>=2024.1",
 ]
 
 [build-system]
@@ -44,3 +35,14 @@ ignore = []
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.10",
+]

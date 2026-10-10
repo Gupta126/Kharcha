@@ -1,9 +1,13 @@
+import uuid6
 import json
 import os
 import threading
 import time
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import itertools
+
+_ERP_SEQ = itertools.count(1)  # unique ERP references: ERP-YYYY-NNNNNN
 from typing import Dict, List, Optional, Any
 from enum import Enum
 
@@ -17,15 +21,15 @@ class ClaimStatus(str, Enum):
 
 class Claim:
     def __init__(self, claim_data: Dict[str, Any]):
-        self.id = str(uuid.uuid7())
+        self.id = str(uuid6.uuid7())
         self.employee_id = claim_data.get("employee_id")
-        self.submitted_at = datetime.utcnow()
+        self.submitted_at = datetime.now(timezone.utc)
         self.status = ClaimStatus.SUBMITTED
         self.amount_paise = claim_data.get("amount_paise", 0)
         self.expense_date = claim_data.get("expense_date")
         self.vendor = claim_data.get("vendor", "")
         self.description = claim_data.get("description", "")
-        self.erp_ref = f"ERP-{datetime.utcnow().strftime('%Y%m')}-{str(self.id)[:8].upper()}"
+        self.erp_ref = f"ERP-{datetime.now(timezone.utc):%Y}-{next(_ERP_SEQ):06d}"
         
         # Status transition times (configurable)
         self.in_review_delay = 10  # seconds
@@ -40,7 +44,7 @@ class Claim:
     
     def get_current_status(self) -> ClaimStatus:
         """Get the current status based on elapsed time."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         if now >= self.paid_ts:
             return ClaimStatus.PAID
@@ -136,10 +140,10 @@ class ERPStorage:
         with self._lock:
             return self.claims.get(claim_id)
     
-    def get_claims_by_employee(self, employee_id: str) -> List[Claim]:
-        """Get all claims for an employee."""
+    def get_claims_by_employee(self, employee_email: str) -> List[Claim]:
+        """Get all claims for an employee by email."""
         with self._lock:
-            return [claim for claim in self.claims.values() if claim.employee_id == employee_id]
+            return [claim for claim in self.claims.values() if claim.employee_id == employee_email]
     
     def _update_claim_statuses(self):
         """Background task to update claim statuses (though status is computed on demand)."""
