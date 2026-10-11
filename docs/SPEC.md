@@ -120,7 +120,7 @@ in that span; otherwise group by category per calendar month.
 **Device tier**: thermal ≥ MODERATE → C; GenAI Prompt API available → A; RAM ≥ 6 GB and LiteRT model present → B; else C.
 
 ## 6. LLM gateway
-Provider: NVIDIA build.nvidia.com only. Each alias has a primary and a fallback NVIDIA model (gateway/litellm.config.yaml).
+Provider: NVIDIA build.nvidia.com only. Nemotron 3/3.5 are reasoning models: the gateway sends chat_template_kwargs.enable_thinking=false so replies are direct; never parse "thinking" text. Each alias has a primary and a fallback NVIDIA model (gateway/litellm.config.yaml).
 Aliases and timeouts: kh-extract-image 20 s, kh-extract-text 20 s, kh-agent 8 s, kh-parse 5 s.
 **No-LLM degraded mode** (both models failed, timed out, or 429 after retry):
 - extraction: keep the phone's on-device result if Tier A/B; otherwise store OCR text and create questions asking the user
