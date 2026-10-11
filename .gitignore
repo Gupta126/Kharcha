@@ -116,3 +116,5 @@ CLAUDE.local.md
 *.bak
 *.backup
 *.debug
+data/generated/
+

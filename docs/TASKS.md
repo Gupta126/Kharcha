@@ -72,7 +72,7 @@ TEST_DATABASE_URL; `make dev-api` / `make dev-worker` run against .env.dev. Merg
 Done when: dev API on 127.0.0.1:8001 reports db/redis/erp ok; hosted compose file passes `config`.
 Verify: `docker compose --env-file .env.example -f deploy/server/docker-compose.yml config -q && (make dev-api &) && sleep 10 && curl -sf 127.0.0.1:8001/v1/healthz`
 
-### [ ] T-07 Synthetic receipt generator — CLAUDE
+### [x] T-07 Synthetic receipt generator — CLAUDE
 Workspace: BACKEND | Depends: T-01 | Refs: PRD §10 Evaluation plan
 Deliver: `data/generator/` producing 200 receipts (cab, flight, hotel, meal, fuel, toll, broadband) as PNG and PDF
 from HTML templates with randomised vendors, layouts, blur, rotation, folds; tampered variants (edited total,
