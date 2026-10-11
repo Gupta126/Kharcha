@@ -25,7 +25,7 @@ class Entitlement(Base, BaseModel):
     employee_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("employees.id"), nullable=False
     )
-    category: Mapped[str] = mapped_column(Text, nullable=False)
+    category: Mapped[str | None] = mapped_column(Text, nullable=True)
     overall: Mapped[bool] = mapped_column(Boolean, server_default="false", nullable=False)
     period: Mapped[str] = mapped_column(
         ENUM("month", "quarter", "fin_year", "per_trip", name="period_kind", create_type=False),

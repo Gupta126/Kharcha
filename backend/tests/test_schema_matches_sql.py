@@ -1,92 +1,26 @@
-"""
-Test that Alembic migration produces schema matching schema.sql
-"""
+"""Test that Alembic migration produces schema matching schema.sql exactly."""
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 from alembic.autogenerate import compare_metadata
 from alembic.migration import MigrationContext
-from sqlalchemy import create_engine, inspect, text
-from sqlalchemy.engine import Connection
+from sqlalchemy import create_engine, text
 
+# Add scripts directory to sys.path so we can import schema parsing and comparison logic
+repo_root = Path(__file__).resolve().parents[2]
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
-def _get_tables_and_columns(conn: Connection):
-    """Get all tables and their columns from the database."""
-    inspector = inspect(conn)
-    tables = {}
-
-    for table_name in inspector.get_table_names():
-        if table_name.startswith("alembic"):
-            continue  # Skip Alembic version table
-
-        columns = {}
-        for col in inspector.get_columns(table_name):
-            columns[col["name"]] = {
-                "type": str(col["type"]),
-                "nullable": col["nullable"],
-                "default": str(col["default"]) if col["default"] is not None else None,
-                "primary_key": col.get("primary_key", False),
-            }
-
-        # Get indexes
-        indexes = []
-        for idx in inspector.get_indexes(table_name):
-            indexes.append(
-                {"name": idx["name"], "columns": idx["column_names"], "unique": idx["unique"]}
-            )
-
-        # Get foreign keys
-        foreign_keys = []
-        for fk in inspector.get_foreign_keys(table_name):
-            foreign_keys.append(
-                {
-                    "name": fk["name"],
-                    "constrained_columns": fk["constrained_columns"],
-                    "referred_table": fk["referred_table"],
-                    "referred_columns": fk["referred_columns"],
-                }
-            )
-
-        tables[table_name] = {"columns": columns, "indexes": indexes, "foreign_keys": foreign_keys}
-
-    return tables
-
-
-def _parse_schema_sql(sql_path: Path):
-    """Parse schema.sql to extract expected tables and columns."""
-    # This is a simplified parser - in reality we'd want to parse the SQL properly
-    # For now, we'll rely on the fact that our migration should match exactly
-    # and we can test by ensuring the migration runs without error
-    # and produces tables that we expect
-
-    expected_tables = {
-        "employees",
-        "policies",
-        "entitlements",
-        "claims",
-        "documents",
-        "expense_lines",
-        "reservations",
-        "extracted_fields",
-        "flags",
-        "questions",
-        "agent_messages",
-        "llm_calls",
-        "audit_events",
-    }
-
-    return expected_tables
+from scripts.schema_diff import diff_schemas, inspect_db, parse_schema_sql  # noqa: E402
 
 
 def test_migration_matches_schema():
-    """Test that running migration produces expected schema."""
-    # Use the test database URL
-    TEST_DATABASE_URL = os.environ["TEST_DATABASE_URL"]
-
-    # Create engine
-    engine = create_engine(TEST_DATABASE_URL)
+    """Test that running migration on a clean database produces expected schema from docs/schema.sql."""
+    test_db_url = os.environ["TEST_DATABASE_URL"].replace("+asyncpg", "")
+    engine = create_engine(test_db_url)
 
     # Start from an empty schema: drops tables, enum types and alembic_version
     with engine.begin() as conn:
@@ -96,80 +30,32 @@ def test_migration_matches_schema():
     result = subprocess.run(
         ["alembic", "upgrade", "head"],
         cwd=Path(__file__).resolve().parents[1],  # backend/
-        env={**os.environ, "DATABASE_URL": TEST_DATABASE_URL},
+        env={**os.environ, "DATABASE_URL": test_db_url},
         capture_output=True,
         text=True,
     )
 
     if result.returncode != 0:
-        print(f"Migration failed: {result.stderr}")
         raise AssertionError(f"Migration failed: {result.stderr}")
 
-    # Check that we have the expected tables
-    with engine.connect() as conn:
-        inspector = inspect(conn)
-        table_names = set(inspector.get_table_names()) - {"alembic_version"}
+    schema_sql_path = repo_root / "docs" / "schema.sql"
+    expected = parse_schema_sql(schema_sql_path)
 
-        expected_tables = {
-            "employees",
-            "policies",
-            "entitlements",
-            "claims",
-            "documents",
-            "expense_lines",
-            "reservations",
-            "extracted_fields",
-            "flags",
-            "questions",
-            "agent_messages",
-            "llm_calls",
-            "audit_events",
-        }
+    with engine.connect():
+        actual = inspect_db(engine)
 
-        # Check that all expected tables exist
-        missing_tables = expected_tables - table_names
-        unexpected_tables = table_names - expected_tables
-
-        assert not missing_tables, f"Missing tables: {missing_tables}"
-        assert not unexpected_tables, f"Unexpected tables: {unexpected_tables}"
-
-        # Check a few key columns to ensure migration ran correctly
-        employees_columns = {col["name"] for col in inspector.get_columns("employees")}
-        expected_employees_columns = {
-            "id",
-            "email",
-            "name",
-            "grade",
-            "cost_centre",
-            "home_city",
-            "manager_id",
-            "role",
-            "created_at",
-            "updated_at",
-        }
-
-        missing_columns = expected_employees_columns - employees_columns
-        assert not missing_columns, f"Missing columns in employees: {missing_columns}"
-
-        # Check that created_at and updated_at exist with proper types
-        claims_columns = {col["name"]: col for col in inspector.get_columns("claims")}
-        assert "created_at" in claims_columns
-        assert "updated_at" in claims_columns
-        assert "submitted_at" in claims_columns  # From schema.sql
-        assert "decided_at" in claims_columns  # From schema.sql
-
-
-if __name__ == "__main__":
-    test_migration_matches_schema()
-    print("All tests passed!")
+    diffs = diff_schemas(expected, actual)
+    assert not diffs, "Differences found between docs/schema.sql and migrated DB:\n" + "\n".join(
+        diffs
+    )
 
 
 def test_no_autogenerate_diffs():
     """Ensure the current SQLAlchemy models match the migrated database schema exactly."""
     from app.models.base import Base
 
-    TEST_DATABASE_URL = os.environ["TEST_DATABASE_URL"]
-    engine = create_engine(TEST_DATABASE_URL)
+    test_db_url = os.environ["TEST_DATABASE_URL"].replace("+asyncpg", "")
+    engine = create_engine(test_db_url)
 
     with engine.connect() as conn:
         context = MigrationContext.configure(conn)
