@@ -1,0 +1,11 @@
+{
+  "message": "I found 2 receipts requiring attention. Would you like to confirm the missing vendor name?",
+  "questions": [
+    {
+      "field": "vendor",
+      "prompt": "What is the vendor name for the receipt dated 2026-10-12?",
+      "options": ["Uber", "Ola", "Other"]
+    }
+  ],
+  "claim_status": "needs_info"
+}

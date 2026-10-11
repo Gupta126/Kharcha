@@ -1,0 +1,8 @@
+{
+  "parsed_value": {
+    "category": "meal",
+    "attendees": ["client1", "client2"],
+    "purpose": "Client dinner"
+  },
+  "confidence": 0.92
+}

@@ -1,0 +1,61 @@
+{
+  "doc_id": "d_8f21",
+  "doc_type": "meal",
+  "lang": [
+    "en"
+  ],
+  "vendor": {
+    "value": "Barbeque Nation, Koregaon Park",
+    "conf": 0.97,
+    "bbox": [
+      42,
+      18,
+      310,
+      44
+    ]
+  },
+  "date": {
+    "value": "2026-10-13",
+    "conf": 0.99
+  },
+  "total": {
+    "value_paise": 164000,
+    "currency": "INR",
+    "conf": 0.96
+  },
+  "tax": {
+    "taxable_paise": 156190,
+    "cgst_paise": 3905,
+    "sgst_paise": 3905,
+    "igst_paise": null,
+    "rate": 5,
+    "conf": 0.91
+  },
+  "gstin": {
+    "value": "27ABCDE1234F1Z0",
+    "checksum_ok": true
+  },
+  "invoice_no": {
+    "value": "KP/26/04412",
+    "conf": 0.88
+  },
+  "payment_mode": {
+    "value": "UPI",
+    "conf": 0.8
+  },
+  "line_items": [
+    {
+      "desc": "Veg buffet x2",
+      "amount_paise": 156190
+    }
+  ],
+  "trust": {
+    "score": 86,
+    "signals": [
+      "camera_capture",
+      "exif_consistent",
+      "tax_math_ok"
+    ]
+  },
+  "prompt_version": "extract_text_v1"
+}

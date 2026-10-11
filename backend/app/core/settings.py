@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ERP_BASE_URL: str = Field(..., alias="ERP_BASE_URL")
     FORENSICS_URL: str = Field(..., alias="FORENSICS_URL")
     LITELLM_URL: str = Field(..., alias="LITELLM_URL")
+    LITELLM_MASTER_KEY: str | None = Field(default=None, alias="LITELLM_MASTER_KEY")
 
     # Queue
     QUEUE_PREFIX: str = Field(default="dev-", alias="QUEUE_PREFIX")

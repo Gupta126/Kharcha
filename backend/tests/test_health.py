@@ -19,3 +19,17 @@ def test_healthz_endpoint():
     # db and redis are "ok" against dev services (assuming the mock returns "ok")
     assert data["db"] == "ok"
     assert data["redis"] == "ok"
+    assert data["llm"] in ("ok", "degraded")
+
+
+def test_healthz_llm_degraded():
+    from app.llm.gateway import LLMGateway
+
+    try:
+        LLMGateway.set_last_status("degraded")
+        response = client.get("/v1/healthz")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["llm"] == "degraded"
+    finally:
+        LLMGateway.set_last_status("ok")
