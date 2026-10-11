@@ -181,60 +181,38 @@ async def test_gateway_connection_error_raises_llm_unavailable():
 
 @pytest.mark.asyncio
 async def test_gateway_writes_llm_calls_row():
-    """Check that llm_calls entry is logged in the database."""
+    """Check that llm_calls entry is logged in the database with all fields."""
     from sqlalchemy import select
-
-    from app.models.claim import Claim
-    from app.models.employee import Employee
 
     gw = LLMGateway(mode="stub")
     claim_id = uuid.uuid4()
-
-    async with AsyncSessionLocal() as session:
-        # Find an existing employee or create one
-        emp_res = await session.execute(select(Employee))
-        employee = emp_res.scalars().first()
-        if not employee:
-            employee = Employee(
-                id=uuid.uuid4(),
-                email="test_llm@kharcha.test",
-                name="Test Employee",
-                grade="L4",
-                cost_centre="ENG",
-                home_city="BLR",
-                role="employee",
-            )
-            session.add(employee)
-            await session.flush()
-
-        claim = Claim(
-            id=claim_id,
-            employee_id=employee.id,
-            title="Test Claim",
-            status="draft",
-            total_paise=0,
-        )
-        session.add(claim)
-        await session.commit()
+    doc_id = uuid.uuid4()
 
     await gw.complete(
         task=TaskAlias.EXTRACT_TEXT.value,
         prompt="Sample OCR text",
         claim_id=claim_id,
-        document_id=None,
+        document_id=doc_id,
     )
 
-    # Query the db to verify insertion
+    # Query the db to verify insertion and assert every field
     async with AsyncSessionLocal() as session:
         query = select(LLMCall).where(LLMCall.claim_id == claim_id)
         result = await session.execute(query)
         record = result.scalars().first()
 
         assert record is not None
+        assert record.task == TaskAlias.EXTRACT_TEXT.value
         assert record.provider == "nvidia"
         assert record.model == "stub"
+        assert record.claim_id == claim_id
+        assert record.document_id == doc_id
+        assert isinstance(record.latency_ms, int) and record.latency_ms >= 0
+        assert record.tokens_in == 100
+        assert record.tokens_out == 100
         assert record.success is True
         assert record.failure is None
+        assert record.created_at is not None
 
 
 def test_prompt_loader_extract_text():

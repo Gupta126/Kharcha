@@ -118,9 +118,10 @@ class LLMGateway:
             async with AsyncSessionLocal() as session:
                 record = LLMCall(
                     id=call_id,
+                    task=task,
                     provider=provider,
                     model=model,
-                    claim_id=claim_id or uuid.uuid4(),  # DB column currently NOT NULL
+                    claim_id=claim_id,
                     document_id=document_id,
                     latency_ms=latency_ms,
                     tokens_in=tokens_in,

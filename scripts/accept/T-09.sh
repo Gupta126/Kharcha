@@ -45,6 +45,23 @@ LLM_MODE=stub uv run --env-file ../.env.dev pytest -v tests/test_gateway.py test
 
 TEST_COUNT=$(LLM_MODE=stub uv run --env-file ../.env.dev pytest -q tests/test_gateway.py | tail -n 1 | awk '{print $1}')
 echo "Gateway tests run summary: $TEST_COUNT"
+
+# Verify llm_calls row has correct task from database
+echo "4b) Checking that llm_calls row has correct task in database..."
+TASK_CHECK=$(LLM_MODE=stub uv run --env-file ../.env.dev python -c "
+import asyncio
+from app.db.session import AsyncSessionLocal
+from sqlalchemy import text
+async def check():
+    async with AsyncSessionLocal() as s:
+        res = await s.execute(text(\"SELECT task FROM llm_calls WHERE task IS NOT NULL ORDER BY created_at DESC LIMIT 1\"))
+        print(res.scalar())
+asyncio.run(check())
+")
+if [ -z "$TASK_CHECK" ] || [ "$TASK_CHECK" = "None" ]; then
+    echo "FAIL: No llm_calls row found with non-null task"; exit 1;
+fi
+echo "PASS: Latest llm_calls row has task '$TASK_CHECK'."
 cd "$REPO_ROOT"
 echo "PASS: Gateway and health tests passed."
 
