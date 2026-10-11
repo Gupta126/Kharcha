@@ -99,7 +99,7 @@ Also: no-LLM degraded mode from SPEC §6 (needs_confirmation extraction, templat
 Done when: stub-mode tests cover success, invalid JSON then repair, primary→fallback model, both fail → degraded mode.
 Verify: `cd backend && LLM_MODE=stub uv run --env-file ../.env.dev pytest -q tests/test_gateway.py`
 
-### [ ] T-10 Documents API and Tier C extraction — CLAUDE
+### [x] T-10 Documents API and Tier C extraction — CLAUDE
 Workspace: BACKEND | Depends: T-05, T-08, T-09 | Refs: SPEC §3 POST /v1/documents, PRD §22
 Deliver: `api/documents.py`, `services/extraction.py`, `workers/extract_document.py`; idempotency by sha256;
 creates/attaches draft claim and line; stores extracted_fields with source.

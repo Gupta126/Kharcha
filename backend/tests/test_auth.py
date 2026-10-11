@@ -1,3 +1,4 @@
+import pytest
 from fastapi import APIRouter, Depends, FastAPI
 from fastapi.testclient import TestClient
 
@@ -5,16 +6,16 @@ from app.api.auth import require_role, require_token
 from app.db.session import get_db
 from app.main import app
 
-# Create a test router to test protected routes
-test_router = APIRouter(prefix="/v1/test_protected", tags=["test"])
+# Create a probe router to test protected routes
+probe_router = APIRouter(prefix="/v1/test_protected", tags=["test"])
 
 
-@test_router.get("/user", dependencies=[Depends(require_token)])
+@probe_router.get("/user", dependencies=[Depends(require_token)])
 async def get_user_protected():
     return {"status": "ok"}
 
 
-@test_router.get("/admin", dependencies=[Depends(require_role(["approver", "finance"]))])
+@probe_router.get("/admin", dependencies=[Depends(require_role(["approver", "finance"]))])
 async def get_admin_protected():
     return {"status": "ok"}
 
@@ -22,7 +23,7 @@ async def get_admin_protected():
 probe_app = FastAPI()
 probe_app.exception_handlers.update(app.exception_handlers)  # same SPEC error format
 probe_app.dependency_overrides = app.dependency_overrides  # same DB override as the real app
-probe_app.include_router(test_router)
+probe_app.include_router(probe_router)
 probe_client = TestClient(probe_app)
 
 
@@ -48,7 +49,15 @@ async def override_get_db():
     yield MockAsyncSession()
 
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(autouse=True)
+def setup_auth_db_override():
+    app.dependency_overrides[get_db] = override_get_db
+    probe_app.dependency_overrides[get_db] = override_get_db
+    yield
+    app.dependency_overrides.pop(get_db, None)
+    probe_app.dependency_overrides.pop(get_db, None)
+
+
 client = TestClient(app)
 
 
