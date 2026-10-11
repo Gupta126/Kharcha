@@ -12,10 +12,10 @@ class DummyItem(BaseModel):
 
 
 # Create a temporary route to test validation
-test_router = APIRouter()
+probe_router = APIRouter()
 
 
-@test_router.post("/v1/_test_validation")
+@probe_router.post("/v1/_test_validation")
 def dummy_validation_endpoint(item: DummyItem):
     return item
 
@@ -23,7 +23,7 @@ def dummy_validation_endpoint(item: DummyItem):
 probe_app = FastAPI()
 probe_app.exception_handlers.update(app.exception_handlers)  # same SPEC error format
 probe_app.dependency_overrides = app.dependency_overrides  # same DB override as the real app
-probe_app.include_router(test_router)
+probe_app.include_router(probe_router)
 probe_client = TestClient(probe_app)
 
 

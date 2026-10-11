@@ -7,7 +7,6 @@ from app.main import app
 # Paths defined in the OpenAPI contract but not yet implemented in FastAPI.
 UNBUILT_PATHS = {
     "/v1/auth/login",
-    "/v1/documents",
     "/v1/claims/draft",
     "/v1/claims/{id}",
     "/v1/claims/{id}/validate",
