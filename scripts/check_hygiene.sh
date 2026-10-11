@@ -40,5 +40,11 @@ done
 # 7. stdlib features newer than Python 3.12
 grep -rnE "${EXCL[@]}" --include='*.py' 'uuid\.uuid7\(' "${PROJECTS[@]}" 2>/dev/null && bad "uuid.uuid7 is Python 3.14+; use uuid6"
 
+# 8. warning for TODO/FIXME/NotImplementedError in app code
+todo_count=$(grep -rnE "${EXCL[@]}" --include='*.py' 'TODO|FIXME|NotImplementedError' backend/app mock-erp/app 2>/dev/null | wc -l)
+if [ "$todo_count" -gt 0 ]; then
+  echo "WARN: $todo_count TODO/FIXME/NotImplementedError in app code"
+fi
+
 [ "$fail" -eq 0 ] && echo "hygiene: OK"
 exit "$fail"

@@ -97,10 +97,20 @@ async def test_gateway_repair_retry_success():
     mock_resp_repair.usage = MagicMock(prompt_tokens=60, completion_tokens=150)
     mock_resp_repair.model = "kh-extract-text"
 
+    mock_raw_fail = MagicMock()
+    mock_raw_fail.parse.return_value = mock_resp_fail
+    mock_raw_fail.headers = {"x-litellm-model-name": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"}
+
+    mock_raw_repair = MagicMock()
+    mock_raw_repair.parse.return_value = mock_resp_repair
+    mock_raw_repair.headers = {
+        "x-litellm-model-name": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b"
+    }
+
     with patch.object(
-        gw.client.chat.completions,
+        gw.client.chat.completions.with_raw_response,
         "create",
-        side_effect=[mock_resp_fail, mock_resp_repair],
+        side_effect=[mock_raw_fail, mock_raw_repair],
     ) as mock_create:
         res = await gw.complete(
             task=TaskAlias.EXTRACT_TEXT.value,
@@ -114,7 +124,10 @@ async def test_gateway_repair_retry_success():
 @pytest.mark.asyncio
 async def test_gateway_repair_retry_failure():
     """Simulate initial bad JSON and failed repair attempt, raising LLMUnavailable."""
+    from sqlalchemy import select
+
     gw = LLMGateway(mode="live")
+    claim_id = uuid.uuid4()
 
     mock_resp_fail1 = MagicMock()
     mock_resp_fail1.choices = [MagicMock(message=MagicMock(content="malformed 1"))]
@@ -126,48 +139,91 @@ async def test_gateway_repair_retry_failure():
     mock_resp_fail2.usage = MagicMock(prompt_tokens=50, completion_tokens=20)
     mock_resp_fail2.model = "kh-extract-text"
 
+    mock_raw_fail1 = MagicMock()
+    mock_raw_fail1.parse.return_value = mock_resp_fail1
+    mock_raw_fail1.headers = {}
+
+    mock_raw_fail2 = MagicMock()
+    mock_raw_fail2.parse.return_value = mock_resp_fail2
+    mock_raw_fail2.headers = {}
+
     with patch.object(
-        gw.client.chat.completions,
+        gw.client.chat.completions.with_raw_response,
         "create",
-        side_effect=[mock_resp_fail1, mock_resp_fail2],
+        side_effect=[mock_raw_fail1, mock_raw_fail2],
     ):
         with pytest.raises(LLMUnavailable):
             await gw.complete(
                 task=TaskAlias.EXTRACT_TEXT.value,
                 prompt="OCR text",
+                claim_id=claim_id,
             )
         assert gw.get_last_status() == "degraded"
+
+    # Verify failure row has model "none" and task = alias
+    async with AsyncSessionLocal() as session:
+        query = select(LLMCall).where(LLMCall.claim_id == claim_id)
+        result = await session.execute(query)
+        record = result.scalars().first()
+        assert record is not None
+        assert record.task == TaskAlias.EXTRACT_TEXT.value
+        assert record.model == "none"
+        assert record.success is False
+        assert "Repair retry failed" in (record.failure or "")
 
 
 @pytest.mark.asyncio
-async def test_gateway_timeout_raises_llm_unavailable():
-    """Simulate network timeout raising LLMUnavailable."""
-    gw = LLMGateway(mode="live")
+async def test_gateway_timeout_records_real_latency_and_model_none():
+    """Simulate network timeout with delay: latency_ms >= configured timeout, model = 'none'."""
+    import time
 
     import httpx
+    from sqlalchemy import select
+
+    gw = LLMGateway(mode="live")
+    claim_id = uuid.uuid4()
+
+    def delayed_timeout(*args, **kwargs):
+        time.sleep(0.2)
+        raise httpx.TimeoutException("Read timed out")
 
     with patch.object(
-        gw.client.chat.completions,
+        gw.client.chat.completions.with_raw_response,
         "create",
-        side_effect=httpx.TimeoutException("Read timed out"),
+        side_effect=delayed_timeout,
     ):
         with pytest.raises(LLMUnavailable):
             await gw.complete(
                 task=TaskAlias.EXTRACT_TEXT.value,
                 prompt="OCR text",
+                claim_id=claim_id,
             )
         assert gw.get_last_status() == "degraded"
+
+    async with AsyncSessionLocal() as session:
+        query = select(LLMCall).where(LLMCall.claim_id == claim_id)
+        result = await session.execute(query)
+        record = result.scalars().first()
+        assert record is not None
+        assert record.task == TaskAlias.EXTRACT_TEXT.value
+        assert record.model == "none"
+        assert record.latency_ms is not None
+        assert record.latency_ms >= 200
+        assert record.success is False
+        assert "Read timed out" in (record.failure or "")
 
 
 @pytest.mark.asyncio
 async def test_gateway_connection_error_raises_llm_unavailable():
-    """Simulate connection refused raising LLMUnavailable."""
-    gw = LLMGateway(mode="live")
-
+    """Simulate connection refused: model = 'none', task = alias."""
     import httpx
+    from sqlalchemy import select
+
+    gw = LLMGateway(mode="live")
+    claim_id = uuid.uuid4()
 
     with patch.object(
-        gw.client.chat.completions,
+        gw.client.chat.completions.with_raw_response,
         "create",
         side_effect=httpx.ConnectError("Connection refused"),
     ):
@@ -175,8 +231,18 @@ async def test_gateway_connection_error_raises_llm_unavailable():
             await gw.complete(
                 task=TaskAlias.AGENT.value,
                 prompt="prompt",
+                claim_id=claim_id,
             )
         assert gw.get_last_status() == "degraded"
+
+    async with AsyncSessionLocal() as session:
+        query = select(LLMCall).where(LLMCall.claim_id == claim_id)
+        result = await session.execute(query)
+        record = result.scalars().first()
+        assert record is not None
+        assert record.task == TaskAlias.AGENT.value
+        assert record.model == "none"
+        assert record.success is False
 
 
 @pytest.mark.asyncio
