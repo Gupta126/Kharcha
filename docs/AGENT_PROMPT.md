@@ -50,3 +50,16 @@ Follow CLAUDE.md, CLAUDE.local.md and backend/CLAUDE.md, plus everything below.
 
 Stuck rule: more than about 30 minutes or 3 failed attempts on one problem means stop, update the progress
 file with what works, what fails and the exact error, push, and summarise for me.
+
+## Write every checkpoint into the progress file (the human reads it on GitHub)
+- CHECKPOINT A: before asking for my OK, write the full plan into the "Checkpoint A" section of
+  docs/progress/<task-id>.md: files to create/change, functions and classes, tests, dependencies with reasons,
+  and a list of every check in scripts/accept/<task-id>.sh with what it proves. Commit
+  "wip(<task-id>): checkpoint A", push, and give me the GitHub link to the file on this branch.
+- CHECKPOINT B: write into the "Checkpoint B" section: the FULL acceptance script output (in a code block),
+  the table Deliver item -> file/function -> check that proves it, `git diff main --stat`, and anything that
+  failed or was changed after checkpoint A. Commit "wip(<task-id>): checkpoint B", push, give me the link.
+- Final report: write the 5-bullet report into the "Final report" section before the PR is created.
+- In the terminal, keep answers short: the link plus one line, for example "Checkpoint A written, waiting for OK".
+- GitHub link format: https://github.com/<owner>/<repo>/blob/<branch>/docs/progress/<task-id>.md
+  (get owner/repo from `gh repo view --json nameWithOwner -q .nameWithOwner`).
