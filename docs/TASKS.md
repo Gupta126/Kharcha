@@ -83,7 +83,7 @@ Verify: `uv run --project eval python -m data.generator --n 20 --out /tmp/gen &&
 
 ## Phase 1 — Extraction
 
-### [ ] T-08 Receipt contract and validators (Python) — CLAUDE
+### [x] T-08 Receipt contract and validators (Python) — CLAUDE
 Workspace: BACKEND | Depends: T-02 | Refs: SPEC §5, contracts/receipt.schema.json, contracts/test-vectors
 Deliver: `schemas/receipt.py` (Pydantic mirror of the JSON schema), `services/validators.py`
 (gstin, tax math, date sanity, amount normaliser, vendor canonicaliser).
