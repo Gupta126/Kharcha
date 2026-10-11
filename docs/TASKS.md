@@ -90,7 +90,7 @@ Deliver: `schemas/receipt.py` (Pydantic mirror of the JSON schema), `services/va
 Done when: all vectors in contracts/test-vectors pass; receipt_example.json validates.
 Verify: `cd backend && uv run pytest -q tests/test_validators.py`
 
-### [ ] T-09 LLM gateway client and stub mode — CLAUDE
+### [x] T-09 LLM gateway client and stub mode — CLAUDE
 Workspace: BACKEND | Depends: T-04 | Refs: PRD §13, SPEC §6, gateway/litellm.config.yaml
 Deliver: `llm/gateway.py` (OpenAI client → LITELLM_URL, alias in, JSON out, schema validation, one repair retry,
 timeouts per alias, llm_calls row per call), stub mode reading `tests/fixtures/llm/<alias>/`, prompt loader
