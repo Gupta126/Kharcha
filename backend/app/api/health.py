@@ -45,10 +45,32 @@ async def check_redis() -> str:
 
 async def check_llm() -> str:
     """Check LLM gateway connectivity.
-    Returns 'ok' if accessible, 'degraded' if using stub, 'down' otherwise.
+    Returns 'ok' if accessible and not degraded,
+    'degraded' if using stub mode or last calls failed, 'down' otherwise.
     """
-    # TODO: Implement actual LLM check when LLM module is available
-    return "ok"
+    from app.core.settings import settings
+    from app.llm.gateway import LLMGateway
+
+    if settings.LLM_MODE == "stub":
+        # In stub mode, report degraded or ok if last status was explicitly set
+        if LLMGateway.get_last_status() == "degraded":
+            return "degraded"
+        return "ok"
+
+    # In live mode, if recent call failed, return degraded
+    if LLMGateway.get_last_status() == "degraded":
+        return "degraded"
+
+    try:
+        import httpx
+
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(f"{settings.LITELLM_URL.rstrip('/')}/health/liveliness")
+            if resp.status_code == 200:
+                return "ok"
+            return "degraded"
+    except Exception:
+        return "degraded"
 
 
 async def check_erp() -> str:

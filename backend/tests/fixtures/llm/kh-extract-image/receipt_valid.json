@@ -1,0 +1,56 @@
+{
+  "doc_id": "d_image_01",
+  "doc_type": "cab",
+  "lang": [
+    "en"
+  ],
+  "vendor": {
+    "value": "Uber India Technologies Pvt Ltd",
+    "conf": 0.95,
+    "bbox": null
+  },
+  "date": {
+    "value": "2026-10-12",
+    "conf": 0.98
+  },
+  "total": {
+    "value_paise": 41200,
+    "currency": "INR",
+    "conf": 0.95
+  },
+  "tax": {
+    "taxable_paise": 39238,
+    "cgst_paise": 981,
+    "sgst_paise": 981,
+    "igst_paise": null,
+    "rate": 5,
+    "conf": 0.90
+  },
+  "gstin": {
+    "value": "27ABCDE1234F1Z0",
+    "checksum_ok": true
+  },
+  "invoice_no": {
+    "value": "UB-41290",
+    "conf": 0.90
+  },
+  "payment_mode": {
+    "value": "card",
+    "conf": 0.85
+  },
+  "line_items": [
+    {
+      "desc": "Trip to Airport",
+      "amount_paise": 39238
+    }
+  ],
+  "trust": {
+    "score": 90,
+    "signals": [
+      "camera_capture",
+      "exif_consistent",
+      "tax_math_ok"
+    ]
+  },
+  "prompt_version": "extract_image_v1"
+}
