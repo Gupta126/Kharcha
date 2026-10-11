@@ -52,8 +52,8 @@ echo "PASS: Preserved seed counts (4 employees, 14 entitlements)."
 echo "5) Testing downgrade to 0001 and re-upgrade to head on kharcha_test..."
 cd "$REPO_ROOT/backend"
 TEST_DB_URL=$(uv run --env-file ../.env.dev python -c "import os; print(os.environ['TEST_DATABASE_URL'])")
-DATABASE_URL="$TEST_DB_URL" uv run alembic downgrade 0001
-DATABASE_URL="$TEST_DB_URL" uv run alembic upgrade head
+DATABASE_URL="$TEST_DB_URL" uv run --env-file ../.env.dev alembic downgrade 0001
+DATABASE_URL="$TEST_DB_URL" uv run --env-file ../.env.dev alembic upgrade head
 cd "$REPO_ROOT"
 echo "PASS: Downgrade to 0001 and re-upgrade to head works on kharcha_test."
 
