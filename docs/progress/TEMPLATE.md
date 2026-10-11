@@ -1,5 +1,5 @@
 # <task-id>: <title>
-Status: IN PROGRESS | BLOCKED | DONE
+Status: IN PROGRESS | WAITING FOR OK (A) | WAITING FOR OK (B) | BLOCKED | DONE
 Branch: be/<task-id>-<topic>
 Acceptance script: scripts/accept/<task-id>.sh  (approved: yes/no)
 
@@ -7,13 +7,33 @@ Acceptance script: scripts/accept/<task-id>.sh  (approved: yes/no)
 - [ ] item 1
 - [ ] item 2
 
+## Checkpoint A: plan (waiting for OK)
+### Files to create / change
+### Functions, classes, tests
+### New dependencies (with reasons)
+### Acceptance checks (one line per check: what it proves)
+
+## Checkpoint B: evidence (waiting for OK)
+### Acceptance script output
+```text
+(paste full output)
+```
+### Deliver item -> evidence
+| Deliver item | File / function | Check that proves it |
+|---|---|---|
+### Diff summary
+```text
+(git diff main --stat)
+```
+### Changes since checkpoint A
+
+## Final report
+-
+
 ## Decisions
-- (choices made and why)
+-
 
 ## Log (newest first)
-- <time> step n: what was done; commands run and result (last line of output)
-
-## Last done
 -
 
 ## Next step
