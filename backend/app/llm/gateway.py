@@ -202,23 +202,27 @@ class LLMGateway:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
+        # Whole-call latency timer
         start_time = time.monotonic()
         tokens_in = 0
         tokens_out = 0
-        model_returned = task
+        model_returned = "none"
 
         try:
-            response = self.client.chat.completions.create(
+            raw_resp = self.client.chat.completions.with_raw_response.create(
                 model=task,
                 messages=messages,
                 timeout=timeout,
             )
-            latency_ms = int((time.monotonic() - start_time) * 1000)
+            response = raw_resp.parse()
+            if raw_resp.headers.get("x-litellm-model-name"):
+                model_returned = raw_resp.headers["x-litellm-model-name"]
+            elif response.model:
+                model_returned = response.model
+
             if response.usage:
                 tokens_in = response.usage.prompt_tokens or 0
                 tokens_out = response.usage.completion_tokens or 0
-            if response.model:
-                model_returned = response.model
 
             raw_content = response.choices[0].message.content or ""
             raw_content = raw_content.strip()
@@ -247,16 +251,20 @@ class LLMGateway:
                     }
                 )
 
-                repair_resp = self.client.chat.completions.create(
+                repair_raw_resp = self.client.chat.completions.with_raw_response.create(
                     model=task,
                     messages=repair_messages,
                     timeout=timeout,
                 )
+                repair_resp = repair_raw_resp.parse()
+                if repair_raw_resp.headers.get("x-litellm-model-name"):
+                    model_returned = repair_raw_resp.headers["x-litellm-model-name"]
+                elif repair_resp.model:
+                    model_returned = repair_resp.model
+
                 if repair_resp.usage:
                     tokens_in += repair_resp.usage.prompt_tokens or 0
                     tokens_out += repair_resp.usage.completion_tokens or 0
-                if repair_resp.model:
-                    model_returned = repair_resp.model
 
                 repaired_content = (repair_resp.choices[0].message.content or "").strip()
                 parsed_data, parse_err = self._parse_json(repaired_content)
@@ -273,6 +281,7 @@ class LLMGateway:
                         raise ValueError(f"Repair retry failed schema check: {schema_err}")
 
             # Successful completion
+            latency_ms = int((time.monotonic() - start_time) * 1000)
             await self.log_call(
                 task=task,
                 provider="nvidia",
@@ -291,10 +300,11 @@ class LLMGateway:
         except Exception as exc:
             latency_ms = int((time.monotonic() - start_time) * 1000)
             self.set_last_status("degraded")
+            # Problem 3: On failure, model stores "none" (task column holds alias)
             await self.log_call(
                 task=task,
                 provider="nvidia",
-                model=model_returned,
+                model="none",
                 claim_id=claim_id,
                 document_id=document_id,
                 latency_ms=latency_ms,
