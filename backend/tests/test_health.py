@@ -1,6 +1,8 @@
+import os
 import time
 
 from fastapi.testclient import TestClient
+from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.settings import settings
@@ -12,7 +14,9 @@ client = TestClient(app)
 
 UNUSED_URL_HTTP = "http://127.0.0.1:59999"
 UNUSED_URL_REDIS = "redis://127.0.0.1:59999/0"
-UNUSED_URL_DB = "postgresql+psycopg://kharcha:kharcha@127.0.0.1:59999/kharcha_test"
+UNUSED_URL_DB = (
+    make_url(os.environ["TEST_DATABASE_URL"]).set(port=59999).render_as_string(hide_password=False)
+)
 
 
 def test_healthz_all_ok():
