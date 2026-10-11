@@ -1,13 +1,13 @@
 [project]
-name = "kharcha-eval"
+name = "kharcha-generator"
 version = "0.1.0"
-description = "Kharcha evaluation harness"
+description = "Synthetic receipt generator for Kharcha"
 requires-python = ">=3.12"
 license = {text = "MIT"}
 authors = [
     {name = "Kharcha Team"}
 ]
-keywords = ["expense", "reimbursement", "evaluation", "testing"]
+keywords = ["expense", "receipt", "generator", "synthetic"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -25,13 +25,16 @@ dependencies = [
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["../.."]
+include = ["data*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "C90"]
-ignore = []
+select = ["E", "F", "W", "I"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -40,7 +43,6 @@ warn_unused_configs = true
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
     "pytest>=9.1.1",
     "ruff>=0.17.0",
 ]

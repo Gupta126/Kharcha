@@ -1,0 +1,1 @@
+"""Kharcha synthetic data module."""
