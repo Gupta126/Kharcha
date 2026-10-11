@@ -26,7 +26,7 @@ if [ "$PASSED_COUNT" -lt 20 ]; then
 fi
 
 echo "3) Running explicit contract vector and model validation checks..."
-uv run --project eval python - <<PYCHECK
+uv run --project backend --env-file .env.dev python - <<PYCHECK
 import json
 import os
 import sys
